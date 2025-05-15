@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppConfig {
 
-
-
     @Bean
     public ModelMapper modelMapper(){
         return new ModelMapper();

@@ -13,10 +13,4 @@ public class AppConfig {
         return new ModelMapper();
     }
 
-
-    @Bean
-    AuthenticationManager authenticationManager()
-    {
-        return new AuthenticationManager();
-    }
 }

@@ -12,4 +12,11 @@ public class AppConfig {
     public ModelMapper modelMapper(){
         return new ModelMapper();
     }
+
+
+    @Bean
+    AuthenticationManager authenticationManager()
+    {
+        return new AuthenticationManager();
+    }
 }

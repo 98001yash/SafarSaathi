@@ -48,4 +48,22 @@ public class AuthService {
         }
         return jwtService.generateAccessToken(user);
     }
+
+
+    public UserDto getUserProfile(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFoundException("User not found with ID: "+userId));
+        return modelMapper.map(user, UserDto.class);
+    }
+
+    public UserDto updateUserProfile(Long userId, UserDto updatedUserDto){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFoundException("User not found with ID: "+userId));
+
+        user.setName(updatedUserDto.getName());
+        user.setEmail(updatedUserDto.getEmail());
+        User updatedUser  =userRepository.save(user);
+
+        return modelMapper.map(updatedUser, UserDto.class);
+    }
 }

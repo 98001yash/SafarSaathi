@@ -29,7 +29,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
             String path = exchange.getRequest().getURI().getPath();
 
             //  Skip authentication for public endpoints
-            if (path.contains("/user/login") || path.contains("/user/register")) {
+            if (path.contains("/auth/login") || path.contains("/auth/signup")) {
                 return chain.filter(exchange);  // Allow request to proceed
             }
 
@@ -62,7 +62,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
             }
         };
     }
-
 
 
     public static class Config{

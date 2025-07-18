@@ -1,8 +1,6 @@
 package com.company.SafarSaathi.user_service.service;
 
 
-import com.company.SafarSaathi.user_service.dtos.AuthRequestDto;
-import com.company.SafarSaathi.user_service.dtos.UserDto;
 import com.company.SafarSaathi.user_service.entities.User;
 import com.company.SafarSaathi.user_service.enums.Role;
 import com.company.SafarSaathi.user_service.exceptions.BadRequestException;

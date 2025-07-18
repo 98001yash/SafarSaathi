@@ -1,9 +1,13 @@
 package com.company.SafarSaathi.user_service.service;
 
 
+
+import com.company.SafarSaathi.user_service.dtos.LoginRequestDto;
+import com.company.SafarSaathi.user_service.dtos.SignupRequestDto;
+import com.company.SafarSaathi.user_service.dtos.UserDto;
 import com.company.SafarSaathi.user_service.entities.User;
-import com.company.SafarSaathi.user_service.enums.Role;
 import com.company.SafarSaathi.user_service.exceptions.BadRequestException;
+import com.company.SafarSaathi.user_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.user_service.repository.UserRepository;
 import com.company.SafarSaathi.user_service.utils.PasswordUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,33 +22,30 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
 
-    public UserDto signUp(AuthRequestDto authRequestDto){
-        // check if the user already exists
-        boolean exists = userRepository.existsByEmail(authRequestDto.getEmail());
+    public UserDto signUp(SignupRequestDto signupRequestDto) {
+        boolean exists = userRepository.existsByEmail(signupRequestDto.getEmail());
         if(exists){
             throw new BadRequestException("User already exists, cannot signup again");
         }
-        User user = modelMapper.map(authRequestDto,User.class);
+        User user = modelMapper.map(signupRequestDto, User.class);
+        user.setPassword(PasswordUtils.hashPassword(signupRequestDto.getPassword()));
 
-        // check if the adminCode is provided and valid
-        if("ADMIN123".equals(authRequestDto.getAdminCode())){
-            user.setRole(Role.ADMIN);
-        }else if(authRequestDto.getRole()==null){
-            user.setRole(Role.TRAVELLER);
-        }else {
-            user.setRole(authRequestDto.getRole());
-        }
 
-        //hash the password before saving in the database
-        user.setPassword(PasswordUtils.hashPassword(authRequestDto.getPassword()));
-
-        // save the user in the database
         User savedUser = userRepository.save(user);
-
-        //map saved User Entity to UserDto for response
         return modelMapper.map(savedUser, UserDto.class);
     }
 
+    public String login(LoginRequestDto loginRequestDto) {
+        User user = userRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(()->new ResourceNotFoundException("User not found with email: "+loginRequestDto.getEmail()));
+
+        boolean isPasswordMatch = PasswordUtils.checkPassword(loginRequestDto.getPassword(),user.getPassword());
+
+        if(!isPasswordMatch){
+            throw new BadRequestException("incorrect password");
+        }
+        return jwtService.generateAccessToken(user);
+    }
 }

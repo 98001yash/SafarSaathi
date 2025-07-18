@@ -1,7 +1,8 @@
 package com.company.SafarSaathi.api_gateway.filters;
 
 
-import com.company.linkedln.api_gateway.JwtService;
+
+import com.company.SafarSaathi.api_gateway.JwtService;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -24,35 +25,44 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
 
     @Override
     public GatewayFilter apply(NameConfig config) {
-      return (exchange, chain)->{
-          log.info("Login request: {}", exchange.getRequest().getURI());
+        return (exchange, chain) -> {
+            String path = exchange.getRequest().getURI().getPath();
 
-          final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+            //  Skip authentication for public endpoints
+            if (path.contains("/user/login") || path.contains("/user/register")) {
+                return chain.filter(exchange);  // Allow request to proceed
+            }
 
-          if(tokenHeader==null || !tokenHeader.startsWith("Bearer")){
-              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-              log.error("Authorization token header not found");
+            log.info("Login request: {}", exchange.getRequest().getURI());
 
-              return exchange.getResponse().setComplete();
-          }
-          final String token = tokenHeader.split("Bearer ")[1];
+            final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
-          try {
-              String userId = jwtService.getUserIdFromToken(token);
-              ServerWebExchange modifiedExchange = exchange
-                      .mutate()
-                      .request(r -> r.header("X-User-Id", userId))
-                      .build();
+            if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                log.error("Authorization token header not found");
+                return exchange.getResponse().setComplete();
+            }
 
+            // Use substring instead of split to avoid exceptions
+            final String token = tokenHeader.substring(7).trim();
 
-              return chain.filter(modifiedExchange);
-          }catch(JwtException e){
-              log.error("Jwt Exception: {}", e.getLocalizedMessage());
-              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-              return exchange.getResponse().setComplete();
-          }
-      };
+            try {
+                String userId = jwtService.getUserIdFromToken(token);
+                ServerWebExchange modifiedExchange = exchange
+                        .mutate()
+                        .request(r -> r.header("X-User-Id", userId))
+                        .build();
+
+                log.info("Authenticated user ID: {}", userId);
+                return chain.filter(modifiedExchange);
+            } catch (JwtException e) {
+                log.error("Jwt Exception: {}", e.getLocalizedMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+        };
     }
+
 
 
     public static class Config{

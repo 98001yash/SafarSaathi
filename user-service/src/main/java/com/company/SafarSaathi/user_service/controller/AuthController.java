@@ -9,10 +9,7 @@ import com.company.SafarSaathi.user_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,5 +30,17 @@ public class AuthController {
         String token = authService.login(loginRequestDto);
 
         return ResponseEntity.ok(token);
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getUserProfile(@RequestHeader("X-User-Id") String userId) {
+        UserDto userDto = authService.getUserProfile(Long.parseLong(userId));
+        return ResponseEntity.ok(userDto);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserDto> updateUserProfile(@RequestHeader("X-User-Id") String userId,
+                                                     @RequestBody UserDto updatedUserDto) {
+        UserDto userDto = authService.updateUserProfile(Long.parseLong(userId), updatedUserDto);
+        return ResponseEntity.ok(userDto);
     }
 }

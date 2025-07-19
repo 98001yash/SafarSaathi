@@ -33,9 +33,10 @@ spring:
         - id: trip-service
           uri: lb://trip-service
           predicates:
-            - Path=/trip/**
+            - Path=/api/v1/trip/**
           filters:
-            -name: AuthenticationFilter
+            - StripPrefix=2
+            - name: AuthenticationFilter
 
 eureka:
   client:

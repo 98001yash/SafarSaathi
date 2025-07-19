@@ -64,22 +64,22 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
-    public TripDto updateTrip(Long tripId, TripUpdateRequestDto request){
+    public TripDto updateTrip(Long tripId, TripUpdateRequestDto request) {
         Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(()->new ResourceNotFoundException("Trip not found with ID: "+tripId));
+                .orElseThrow(() -> new ResourceNotFoundException("Trip not found with ID: " + tripId));
 
         Long userId = UserContextHolder.getCurrentUserId();
-        if(!trip.getUserId().equals(userId)){
+        if (!trip.getUserId().equals(userId)) {
             throw new BadRequestException("You are not allowed to update this trip");
         }
-
+        TripStatus existingStatus = trip.getStatus();
         modelMapper.map(request, trip);
+        trip.setStatus(existingStatus);
         Trip updatedTrip = tripRepository.save(trip);
-
         log.info("Trip updated with ID: {}", updatedTrip.getId());
-
         return modelMapper.map(updatedTrip, TripDto.class);
     }
+
 
     public void deleteTrip(Long tripId){
         Trip trip = tripRepository.findById(tripId)

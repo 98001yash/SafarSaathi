@@ -4,8 +4,10 @@ package com.company.SafarSaathi.trip_service.service;
 import com.company.SafarSaathi.trip_service.auth.UserContextHolder;
 import com.company.SafarSaathi.trip_service.dtos.TripCreateRequestDto;
 import com.company.SafarSaathi.trip_service.dtos.TripDto;
+import com.company.SafarSaathi.trip_service.dtos.TripUpdateRequestDto;
 import com.company.SafarSaathi.trip_service.entity.Trip;
 import com.company.SafarSaathi.trip_service.enums.TripStatus;
+import com.company.SafarSaathi.trip_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.trip_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.trip_service.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +62,62 @@ public class TripService {
         return trips.stream()
                 .map(trip->modelMapper.map(trip, TripDto.class))
                 .collect(Collectors.toList());
+    }
+
+    public TripDto updateTrip(Long tripId, TripUpdateRequestDto request){
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(()->new ResourceNotFoundException("Trip not found with ID: "+tripId));
+
+        Long userId = UserContextHolder.getCurrentUserId();
+        if(!trip.getUserId().equals(userId)){
+            throw new BadRequestException("You are not allowed to update this trip");
+        }
+
+        modelMapper.map(request, trip);
+        Trip updatedTrip = tripRepository.save(trip);
+
+        log.info("Trip updated with ID: {}", updatedTrip.getId());
+
+        return modelMapper.map(updatedTrip, TripDto.class);
+    }
+
+    public void deleteTrip(Long tripId){
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(()->new ResourceNotFoundException("Trip not found with ID: "+tripId));
+
+        Long userId = UserContextHolder.getCurrentUserId();
+        if(!trip.getUserId().equals(userId)){
+            throw new BadRequestException("You are not allowed to delete this trip");
+        }
+
+        tripRepository.delete(trip);
+        log.info("Trip deleted with ID: {}", tripId);
+    }
+
+    public TripDto startTrip(Long tripId){
+        return updateTripStatus(tripId, TripStatus.ONGOING);
+    }
+
+    public TripDto completeTrip(Long tripId){
+        return updateTripStatus(tripId, TripStatus.COMPLETED);
+    }
+
+    public TripDto cancelTrip(Long tripId){
+        return updateTripStatus(tripId, TripStatus.CANCELLED);
+    }
+
+
+    public TripDto updateTripStatus(Long tripId, TripStatus status){
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(()->new ResourceNotFoundException("Trip not found with ID: "+tripId));
+
+        Long userId = UserContextHolder.getCurrentUserId();
+        if(!trip.getUserId().equals(userId)){
+            throw new BadRequestException("You are not allowed to modify this trip's status");
+        }
+        trip.setStatus(status);
+        Trip saved = tripRepository.save(trip);
+        log.info("Trip status updated to {} for ID: {}",status, tripId);
+        return modelMapper.map(saved, TripDto.class);
     }
 }

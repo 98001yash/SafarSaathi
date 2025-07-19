@@ -1,6 +1,8 @@
 package com.company.SafarSaathi.trip_service.entity;
 
 
+import com.company.SafarSaathi.trip_service.enums.ModeOfTravel;
+import com.company.SafarSaathi.trip_service.enums.TripStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +27,9 @@ public class Trip {
     private String origin;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private String modeOfTravel;  // e.g. Bus, train, Flight
+
+    @Enumerated(EnumType.STRING)
+    private ModeOfTravel modeOfTravel;  // e.g. Bus, train, Flight
 
     private Integer maxTravelers;
     private Integer currentTravelers;
@@ -35,7 +39,9 @@ public class Trip {
     private boolean isPrivate;
     private Double estimatedCost;
 
-    private String status; // e.g. PLANNED, ONGOING, COMPLETED, CANCELLED
+
+    @Enumerated(EnumType.STRING)
+    private TripStatus status; // e.g. PLANNED, ONGOING, COMPLETED, CANCELLED
     private Long userId; // Fetched from the API-GATEWAY (X-user-Id_
 
 

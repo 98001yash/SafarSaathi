@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,5 +45,20 @@ public class TripService {
                 .orElseThrow(()->new ResourceNotFoundException("Trip not found with ID: "+id));
 
         return modelMapper.map(trip, TripDto.class);
+    }
+
+    public List<TripDto> getAllMyTrips(){
+        Long userId = UserContextHolder.getCurrentUserId();
+        List<Trip> trips = tripRepository.findByUserId(userId);
+        return trips.stream()
+                .map(trip->modelMapper.map(trip, TripDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<TripDto> getAllPublicTrips(){
+        List<Trip> trips = tripRepository.findByIsPrivateFalse();
+        return trips.stream()
+                .map(trip->modelMapper.map(trip, TripDto.class))
+                .collect(Collectors.toList());
     }
 }

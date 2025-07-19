@@ -30,6 +30,13 @@ spring:
           filters:
             - name: AuthenticationFilter
 
+        - id: trip-service
+          uri: lb://trip-service
+          predicates:
+            - Path=/trip/**
+          filters:
+            -name: AuthenticationFilter
+
 eureka:
   client:
     service-url:

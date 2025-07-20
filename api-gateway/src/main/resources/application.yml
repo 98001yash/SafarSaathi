@@ -38,6 +38,14 @@ spring:
             - StripPrefix=2
             - name: AuthenticationFilter
 
+        - id: companion-service
+          uri: lb://companion-service
+          predicates:
+            - Path=/api/v2/companion/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
+
 eureka:
   client:
     service-url:

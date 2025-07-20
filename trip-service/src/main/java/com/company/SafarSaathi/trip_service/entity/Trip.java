@@ -24,7 +24,15 @@ public class Trip {
     private Long id;
 
     private String destination;
+    private Double destinationLat;
+    private Double destinationLng;
+
+
     private String origin;
+    private Double originLat;
+    private Double originLng;
+
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 

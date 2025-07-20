@@ -11,6 +11,7 @@ import com.company.SafarSaathi.trip_service.enums.TripStatus;
 import com.company.SafarSaathi.trip_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.trip_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.trip_service.repository.TripRepository;
+import com.company.SafarSaathi.trip_service.utils.GeocodingUtil;
 import com.company.SafarSaathi.trip_service.utils.TripSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final ModelMapper modelMapper;
+    private final GeocodingUtil geocodingUtil;
+
 
 
     public TripDto createTrip(TripCreateRequestDto request){
@@ -43,6 +46,23 @@ public class TripService {
         trip.setUserId(userId);
         trip.setCurrentTravelers(1);
         trip.setStatus(TripStatus.PLANNED);
+
+        GeocodingUtil.Coordinates originCoords = geocodingUtil.getCoordinates(request.getOrigin());
+        if (originCoords != null) {
+            trip.setOriginLat(originCoords.getLat());
+            trip.setOriginLng(originCoords.getLng());
+        }
+
+        // Set coordinates for destination
+        GeocodingUtil.Coordinates destCoords = geocodingUtil.getCoordinates(request.getDestination());
+        if (destCoords != null) {
+            trip.setDestinationLat(destCoords.getLat());
+            trip.setDestinationLng(destCoords.getLng());
+        }
+
+        log.info("Origin: {}, lat: {}, lng: {}", trip.getOrigin(), trip.getOriginLat(), trip.getOriginLng());
+        log.info("Destination: {}, lat: {}, lng: {}", trip.getDestination(), trip.getDestinationLat(), trip.getDestinationLng());
+
 
         Trip savedTrip = tripRepository.save(trip);
         log.info("Trip created with ID: {}", savedTrip.getId());
@@ -84,6 +104,24 @@ public class TripService {
         TripStatus existingStatus = trip.getStatus();
         modelMapper.map(request, trip);
         trip.setStatus(existingStatus);
+
+        GeocodingUtil.Coordinates originCoords = geocodingUtil.getCoordinates(request.getOrigin());
+        if (originCoords != null) {
+            trip.setOriginLat(originCoords.getLat());
+            trip.setOriginLng(originCoords.getLng());
+        }
+
+        // Set coordinates for destination
+        GeocodingUtil.Coordinates destCoords = geocodingUtil.getCoordinates(request.getDestination());
+        if (destCoords != null) {
+            trip.setDestinationLat(destCoords.getLat());
+            trip.setDestinationLng(destCoords.getLng());
+        }
+
+        log.info("Origin: {}, lat: {}, lng: {}", trip.getOrigin(), trip.getOriginLat(), trip.getOriginLng());
+        log.info("Destination: {}, lat: {}, lng: {}", trip.getDestination(), trip.getDestinationLat(), trip.getDestinationLng());
+
+
         Trip updatedTrip = tripRepository.save(trip);
         log.info("Trip updated with ID: {}", updatedTrip.getId());
         return modelMapper.map(updatedTrip, TripDto.class);

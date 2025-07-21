@@ -2,7 +2,7 @@ package com.company.SafarSaathi.companion_service.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException{
 
-    public ResourceNotFoundException(String message){
+    public ResourceNotFoundException(String companion){
         super(message);
     }
 }

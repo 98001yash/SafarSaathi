@@ -13,14 +13,9 @@ import lombok.NoArgsConstructor;
 public class UpdateCompanionPreferenceRequest {
 
     private Integer preferredAgeMin;
-
     private Integer preferredAgeNax;
-
     private String preferredGender;
-
     private Boolean allowSmokers;
-
     private Boolean allowDrinkers;
-
     private String travelType;
 }

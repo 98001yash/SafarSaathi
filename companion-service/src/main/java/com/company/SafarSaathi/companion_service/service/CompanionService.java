@@ -66,7 +66,6 @@ public class CompanionService {
         Companion updated = companionRepository.save(existing);
         log.info("Companion ID: {} updated", updated.getId());
 
-        // ✳️ Manual Mapping instead of ModelMapper to avoid PersistentSet issue
         CompanionDto companionDto = CompanionDto.builder()
                 .id(updated.getId())
                 .tripId(updated.getTripId())
@@ -133,7 +132,6 @@ public class CompanionService {
 
         CompanionPreference preference = companionPreferenceRepository.findByUserId(userId)
                 .orElseThrow(()->new ResourceNotFoundException("CompanionPreference not found with userId "+userId));
-
         return modelMapper.map(preference, CompanionPreferenceDto.class);
     }
 }

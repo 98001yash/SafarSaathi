@@ -28,7 +28,7 @@ public class Companion {
     private String message;
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "companion_matches", joinColumns = @JoinColumn(name = "companion_id"))
     @Column(name = "matched_user_id")
     private Set<Long> matchedUserIds = new HashSet<>();

@@ -1,14 +1,15 @@
 package com.company.SafarSaathi.companion_service.controller;
 
 
-import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
 import com.company.SafarSaathi.companion_service.dtos.CompanionDto;
 import com.company.SafarSaathi.companion_service.dtos.CompanionPreferenceDto;
 import com.company.SafarSaathi.companion_service.dtos.CreateCompanionRequest;
+import com.company.SafarSaathi.companion_service.dtos.UpdateCompanionRequest;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,17 +25,21 @@ public class CompanionController {
     private final ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity<CompanionDto> createCompanion(@RequestBody CompanionDto dto){
-        log.info("Creating companion request for user");
-        return ResponseEntity.ok(companionService.createCompanion(dto));
+    public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
+        CompanionDto created = companionService.createCompanion(requestDto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<CompanionDto> updateCompanion(@PathVariable Long id,
-                                                        @RequestBody CompanionDto dto){
-        log.info("updating companion with id: {}",id);
-        return ResponseEntity.ok(companionService.updateCompanion(id, dto));
+    public ResponseEntity<CompanionDto> updateCompanion(
+            @PathVariable Long id,
+            @RequestBody UpdateCompanionRequest request
+    ) {
+        CompanionDto updated = companionService.updateCompanion(id, request);
+        return ResponseEntity.ok(updated);
     }
+
 
 
     @DeleteMapping("/{id}")

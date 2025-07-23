@@ -142,33 +142,48 @@ public class CompanionService {
 
     @Transactional
     public void matchCompanions() {
+        log.info("🔁 Starting companion matching process...");
+
         List<Companion> open = companionRepository.findByStatus("OPEN");
+        log.info("Found {} open companions", open.size());
 
         for (int i = 0; i < open.size(); i++) {
             Companion a = open.get(i);
-            CompanionPreference prefA =
-                    companionPreferenceRepository.findByUserId(a.getUserId()).orElse(null);
-            if (prefA == null) continue;
+            CompanionPreference prefA = companionPreferenceRepository.findByUserId(a.getUserId()).orElse(null);
+            if (prefA == null) {
+                log.warn("❌ No preferences found for userId: {}", a.getUserId());
+                continue;
+            }
 
             for (int j = i + 1; j < open.size(); j++) {
                 Companion b = open.get(j);
-                if (a.getUserId().equals(b.getUserId())) continue;  // same user
-                CompanionPreference prefB =
-                        companionPreferenceRepository.findByUserId(b.getUserId()).orElse(null);
-                if (prefB == null) continue;
+                if (a.getUserId().equals(b.getUserId())) continue;
+
+                CompanionPreference prefB = companionPreferenceRepository.findByUserId(b.getUserId()).orElse(null);
+                if (prefB == null) {
+                    log.warn("❌ No preferences found for userId: {}", b.getUserId());
+                    continue;
+                }
+
+                log.info("🔍 Checking compatibility between user {} and {}", a.getUserId(), b.getUserId());
 
                 if (compatible(a, prefA, b, prefB)) {
+                    log.info("✅ Matched: {} <--> {}", a.getUserId(), b.getUserId());
                     a.getMatchedUserIds().add(b.getUserId());
                     b.getMatchedUserIds().add(a.getUserId());
+                } else {
+                    log.info("❌ No match between {} and {}", a.getUserId(), b.getUserId());
                 }
             }
         }
-        companionRepository.saveAll(open);   // batch save
-    }
 
+        companionRepository.saveAll(open);
+        log.info("💾 Saved matched users to DB");
+    }
 
     public List<CompanionDto> getMatchedForCurrentUser() {
         Long userId = UserContextHolder.getCurrentUserId();
+        log.info("📥 Fetching matched companions for userId: {}", userId);
 
         List<Companion> found = companionRepository.findByMatchedUserIdsContains(userId);
         return found.stream()
@@ -176,57 +191,54 @@ public class CompanionService {
                 .toList();
     }
 
-
     private boolean compatible(Companion a, CompanionPreference pA,
                                Companion b, CompanionPreference pB) {
-        // Simulated user profiles — in real case you'd fetch from user-service
-        UserProfile userA = userClient.getUserProfile(a.getUserId());
-        UserProfile userB = userClient.getUserProfile(b.getUserId());
+        try {
+            UserProfile userA = userClient.getUserProfile(a.getUserId());
+            UserProfile userB = userClient.getUserProfile(b.getUserId());
 
-        // Check if A matches B's preference
-        boolean aMatchesB = matchesPreference(userA, pB, b.getTripId(), a.getTripId());
+            if (userA == null || userB == null) {
+                log.warn("⚠️ User profile missing: A={} or B={}", a.getUserId(), b.getUserId());
+                return false;
+            }
 
-        // Check if B matches A's preference
-        boolean bMatchesA = matchesPreference(userB, pA, a.getTripId(), b.getTripId());
-        return aMatchesB && bMatchesA;
+            boolean aMatchesB = matchesPreference(userA, pB, b.getTripId(), a.getTripId());
+            boolean bMatchesA = matchesPreference(userB, pA, a.getTripId(), b.getTripId());
+
+            return aMatchesB && bMatchesA;
+
+        } catch (Exception e) {
+            log.error("❌ Error while matching users {} and {}: {}", a.getUserId(), b.getUserId(), e.getMessage(), e);
+            return false;
+        }
     }
 
     private boolean matchesPreference(UserProfile user, CompanionPreference preference, Long targetTripId, Long userTripId) {
-        // Age check
-        if (user.getAge() < preference.getPreferredAgeMin() || user.getAge() > preference.getPreferredAgeMax()) {
-            return false;
-        }
-        // Gender check
-        if (preference.getPreferredGender() != null && !preference.getPreferredGender().equalsIgnoreCase(user.getGender())) {
-            return false;
-        }
-        // Smoker check
-        if (!Boolean.TRUE.equals(preference.getAllowSmokers()) && user.isSmoker()) {
-            return false;
-        }
-        // Drinker check
-        if (!Boolean.TRUE.equals(preference.getAllowDrinkers()) && user.isDrinker()) {
-            return false;
-        }
-        // Travel type check
-        if (preference.getTravelType() != null && !preference.getTravelType().equals(getTripMode(targetTripId))) {
-            return false;
-        }
-        if (!Objects.equals(targetTripId, userTripId)) {
-            return false;
-        }
-        return true;
-    }
+        if (user.getAge() < preference.getPreferredAgeMin() || user.getAge() > preference.getPreferredAgeMax()) return false;
+        if (preference.getPreferredGender() != null &&
+                !preference.getPreferredGender().equalsIgnoreCase(user.getGender())) return false;
+        if (!Boolean.TRUE.equals(preference.getAllowSmokers()) && user.isSmoker()) return false;
+        if (!Boolean.TRUE.equals(preference.getAllowDrinkers()) && user.isDrinker()) return false;
 
+        ModeOfTravel travelType = getTripMode(targetTripId);
+        if (preference.getTravelType() != null && travelType != null &&
+                !preference.getTravelType().equals(travelType)) return false;
+
+        // Optional: same trip check (you can disable this if not required)
+        return Objects.equals(targetTripId, userTripId);
+    }
 
     private ModeOfTravel getTripMode(Long tripId) {
         try {
             TripDto trip = tripClient.getTripById(tripId);
+            if (trip == null) {
+                log.warn("⚠️ Trip not found for id {}", tripId);
+                return null;
+            }
             return trip.getModeOfTravel();
         } catch (Exception e) {
-            log.error("Failed to fetch trip with ID: {}", tripId, e);
+            log.error("❌ Failed to fetch trip with ID: {}", tripId, e);
             return null;
         }
     }
-
 }

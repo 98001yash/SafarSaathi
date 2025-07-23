@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "trip-service")
 public interface TripClient {
 
-    @GetMapping("/api/v1/trip/core/{tripId}")
+    @GetMapping("/core/{tripId}")
     TripDto getTripById(@PathVariable("tripId") Long tripId);
 }

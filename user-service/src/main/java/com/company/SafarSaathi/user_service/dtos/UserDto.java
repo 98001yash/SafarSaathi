@@ -10,4 +10,9 @@ public class UserDto {
     private String name;
     private String email;
 
+    private Integer age;
+    private String gender;
+    private Boolean smoker;
+    private Boolean drinker;
+
 }

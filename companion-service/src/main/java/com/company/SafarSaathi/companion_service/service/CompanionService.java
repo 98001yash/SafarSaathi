@@ -2,10 +2,7 @@ package com.company.SafarSaathi.companion_service.service;
 
 
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
-import com.company.SafarSaathi.companion_service.dtos.CompanionDto;
-import com.company.SafarSaathi.companion_service.dtos.CompanionPreferenceDto;
-import com.company.SafarSaathi.companion_service.dtos.CreateCompanionRequest;
-import com.company.SafarSaathi.companion_service.dtos.UpdateCompanionRequest;
+import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.Companion;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
 import com.company.SafarSaathi.companion_service.exceptions.BadRequestException;
@@ -215,7 +212,5 @@ public class CompanionService {
         }
         return true;
     }
-
-
 
 }

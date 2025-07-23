@@ -26,4 +26,10 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+    private Integer age;
+    private String gender;
+    private Boolean smoker;
+    private Boolean drinker;
 }

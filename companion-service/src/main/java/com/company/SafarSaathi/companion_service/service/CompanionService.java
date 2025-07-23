@@ -2,10 +2,12 @@ package com.company.SafarSaathi.companion_service.service;
 
 
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
+import com.company.SafarSaathi.companion_service.client.TripClient;
 import com.company.SafarSaathi.companion_service.client.UserClient;
 import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.Companion;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
+import com.company.SafarSaathi.companion_service.enums.ModeOfTravel;
 import com.company.SafarSaathi.companion_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.companion_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.companion_service.repository.CompanionPreferenceRepository;
@@ -30,8 +32,9 @@ public class CompanionService {
     private final CompanionRepository companionRepository;
     private final CompanionPreferenceRepository companionPreferenceRepository;
     private final ModelMapper modelMapper;
-
     private final UserClient userClient;
+
+    private final TripClient tripClient;
 
     public CompanionDto createCompanion(CreateCompanionRequest dto) {
         Long userId = UserContextHolder.getCurrentUserId();
@@ -206,14 +209,24 @@ public class CompanionService {
             return false;
         }
         // Travel type check
-        if (preference.getTravelType() != null && !preference.getTravelType().equalsIgnoreCase(getTripType(targetTripId))) {
+        if (preference.getTravelType() != null && !preference.getTravelType().equals(getTripMode(targetTripId))) {
             return false;
         }
-        // Optional: Check if trip IDs match (only if required)
         if (!Objects.equals(targetTripId, userTripId)) {
             return false;
         }
         return true;
+    }
+
+
+    private ModeOfTravel getTripMode(Long tripId) {
+        try {
+            TripDto trip = tripClient.getTripById(tripId);
+            return trip.getModeOfTravel();
+        } catch (Exception e) {
+            log.error("Failed to fetch trip with ID: {}", tripId, e);
+            return null;
+        }
     }
 
 }

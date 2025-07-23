@@ -2,6 +2,7 @@ package com.company.SafarSaathi.companion_service.service;
 
 
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
+import com.company.SafarSaathi.companion_service.client.UserClient;
 import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.Companion;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
@@ -29,6 +30,8 @@ public class CompanionService {
     private final CompanionRepository companionRepository;
     private final CompanionPreferenceRepository companionPreferenceRepository;
     private final ModelMapper modelMapper;
+
+    private final UserClient userClient;
 
     public CompanionDto createCompanion(CreateCompanionRequest dto) {
         Long userId = UserContextHolder.getCurrentUserId();
@@ -174,8 +177,8 @@ public class CompanionService {
     private boolean compatible(Companion a, CompanionPreference pA,
                                Companion b, CompanionPreference pB) {
         // Simulated user profiles — in real case you'd fetch from user-service
-        UserProfile userA = userService.getUserProfile(a.getUserId());
-        UserProfile userB = userService.getUserProfile(b.getUserId());
+        UserProfile userA = userClient.getUserProfile(a.getUserId());
+        UserProfile userB = userClient.getUserProfile(b.getUserId());
 
         // Check if A matches B's preference
         boolean aMatchesB = matchesPreference(userA, pB, b.getTripId(), a.getTripId());

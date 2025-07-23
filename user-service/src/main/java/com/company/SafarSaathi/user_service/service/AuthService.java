@@ -58,12 +58,17 @@ public class AuthService {
 
     public UserDto updateUserProfile(Long userId, UserDto updatedUserDto){
         User user = userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("User not found with ID: "+userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
         user.setName(updatedUserDto.getName());
         user.setEmail(updatedUserDto.getEmail());
-        User updatedUser  =userRepository.save(user);
+        user.setAge(updatedUserDto.getAge());
+        user.setGender(updatedUserDto.getGender());
+        user.setSmoker(updatedUserDto.getSmoker());
+        user.setDrinker(updatedUserDto.getDrinker());
 
+        User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserDto.class);
     }
+
 }

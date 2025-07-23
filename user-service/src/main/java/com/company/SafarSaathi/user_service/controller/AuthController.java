@@ -31,11 +31,11 @@ public class AuthController {
 
         return ResponseEntity.ok(token);
     }
-    @GetMapping("/profile")
-    public ResponseEntity<UserDto> getUserProfile(@RequestHeader("X-User-Id") String userId) {
-        UserDto userDto = authService.getUserProfile(Long.parseLong(userId));
-        return ResponseEntity.ok(userDto);
+    @GetMapping("/{id}/profile")
+    public ResponseEntity<UserDto> getProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(authService.getUserProfile(id));
     }
+
 
     @PutMapping("/profile")
     public ResponseEntity<UserDto> updateUserProfile(@RequestHeader("X-User-Id") String userId,

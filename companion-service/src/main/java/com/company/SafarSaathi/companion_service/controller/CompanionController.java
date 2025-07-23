@@ -67,4 +67,14 @@ public class CompanionController {
         return ResponseEntity.ok(companionService.getPreference());
     }
 
+    @PostMapping("/match")
+    public ResponseEntity<String> matchCompanions() {
+        companionService.matchCompanions();
+        return ResponseEntity.ok("Matching completed");
+    }
+
+    @GetMapping("/matches")
+    public ResponseEntity<List<CompanionDto>> myMatches() {
+        return ResponseEntity.ok(companionService.getMatchedForCurrentUser());
+    }
 }

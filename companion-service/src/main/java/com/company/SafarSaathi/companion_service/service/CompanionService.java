@@ -12,6 +12,7 @@ import com.company.SafarSaathi.companion_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.companion_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.companion_service.repository.CompanionPreferenceRepository;
 import com.company.SafarSaathi.companion_service.repository.CompanionRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -134,4 +136,86 @@ public class CompanionService {
                 .orElseThrow(()->new ResourceNotFoundException("CompanionPreference not found with userId "+userId));
         return modelMapper.map(preference, CompanionPreferenceDto.class);
     }
+
+    @Transactional
+    public void matchCompanions() {
+        List<Companion> open = companionRepository.findByStatus("OPEN");
+
+        for (int i = 0; i < open.size(); i++) {
+            Companion a = open.get(i);
+            CompanionPreference prefA =
+                    companionPreferenceRepository.findByUserId(a.getUserId()).orElse(null);
+            if (prefA == null) continue;
+
+            for (int j = i + 1; j < open.size(); j++) {
+                Companion b = open.get(j);
+                if (a.getUserId().equals(b.getUserId())) continue;  // same user
+                CompanionPreference prefB =
+                        companionPreferenceRepository.findByUserId(b.getUserId()).orElse(null);
+                if (prefB == null) continue;
+
+                if (compatible(a, prefA, b, prefB)) {
+                    a.getMatchedUserIds().add(b.getUserId());
+                    b.getMatchedUserIds().add(a.getUserId());
+                }
+            }
+        }
+        companionRepository.saveAll(open);   // batch save
+    }
+
+
+    public List<CompanionDto> getMatchedForCurrentUser() {
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        List<Companion> found = companionRepository.findByMatchedUserIdsContains(userId);
+        return found.stream()
+                .map(c -> modelMapper.map(c, CompanionDto.class))
+                .toList();
+    }
+
+
+    private boolean compatible(Companion a, CompanionPreference pA,
+                               Companion b, CompanionPreference pB) {
+        // Simulated user profiles — in real case you'd fetch from user-service
+        UserProfile userA = userService.getUserProfile(a.getUserId());
+        UserProfile userB = userService.getUserProfile(b.getUserId());
+
+        // Check if A matches B's preference
+        boolean aMatchesB = matchesPreference(userA, pB, b.getTripId(), a.getTripId());
+
+        // Check if B matches A's preference
+        boolean bMatchesA = matchesPreference(userB, pA, a.getTripId(), b.getTripId());
+        return aMatchesB && bMatchesA;
+    }
+
+    private boolean matchesPreference(UserProfile user, CompanionPreference preference, Long targetTripId, Long userTripId) {
+        // Age check
+        if (user.getAge() < preference.getPreferredAgeMin() || user.getAge() > preference.getPreferredAgeMax()) {
+            return false;
+        }
+        // Gender check
+        if (preference.getPreferredGender() != null && !preference.getPreferredGender().equalsIgnoreCase(user.getGender())) {
+            return false;
+        }
+        // Smoker check
+        if (!Boolean.TRUE.equals(preference.getAllowSmokers()) && user.isSmoker()) {
+            return false;
+        }
+        // Drinker check
+        if (!Boolean.TRUE.equals(preference.getAllowDrinkers()) && user.isDrinker()) {
+            return false;
+        }
+        // Travel type check
+        if (preference.getTravelType() != null && !preference.getTravelType().equalsIgnoreCase(getTripType(targetTripId))) {
+            return false;
+        }
+        // Optional: Check if trip IDs match (only if required)
+        if (!Objects.equals(targetTripId, userTripId)) {
+            return false;
+        }
+        return true;
+    }
+
+
+
 }

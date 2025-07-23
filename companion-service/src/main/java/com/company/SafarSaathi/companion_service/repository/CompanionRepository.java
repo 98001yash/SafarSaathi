@@ -10,4 +10,8 @@ public interface CompanionRepository extends JpaRepository<Companion,Long> {
     List<Companion> findByTripId(Long tripId);
 
     List<Companion> findByUserId(Long userId);
+
+    List<Companion> findByStatus(String open);
+
+    List<Companion> findByMatchedUserIdsContains(Long userId);
 }

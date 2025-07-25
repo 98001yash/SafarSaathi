@@ -17,8 +17,8 @@ public class TripDto {
 
     private ModeOfTravel modeOfTravel;
 
-    private int maxTravelers;
-    private int currentTravelers;
+    private Integer maxTravelers;
+    private Integer currentTravelers;
 
     private String description;
     private Double estimatedCost;

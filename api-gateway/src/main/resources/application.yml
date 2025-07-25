@@ -46,6 +46,15 @@ spring:
             - StripPrefix=2
             - name: AuthenticationFilter
 
+
+        - id: matching-service
+          uri: lb://matching-service
+          predicates:
+            - Path=/api/v3/matching/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
+
 eureka:
   client:
     service-url:

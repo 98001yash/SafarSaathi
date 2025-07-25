@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "companion-service", path = "/api/v2/companion/core")
+@FeignClient(name = "companion-service", path = "/companion")
 public interface CompanionClient {
 
-    @GetMapping
+    @GetMapping("/core")
     List<CompanionDto> getAllCompanions();
 }

@@ -6,10 +6,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "trip-service", path = "/api/v1/trip/core")
+@FeignClient(name = "trip-service", path = "/trip/core")
 public interface TripClient {
 
-
-    @GetMapping("/{id}")
-    TripDto getTripById(@PathVariable("Id") Long tripId);
+    @GetMapping("/{tripId}")
+    TripDto getTripById(@PathVariable("tripId") Long tripId);
 }

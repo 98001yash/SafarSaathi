@@ -26,7 +26,7 @@ public class MatchingService {
     private final TripClient tripClient;
 
 
-    public List<MatchResultDto> findMatchesForUser(Long userId) {
+    public List<MatchResultDto> findMatchesForCurrentUser() {
         Long userId = UserContextHolder.getCurrentUserId();
 
         List<CompanionDto> companions = companionClient.getAllCompanions();
@@ -49,6 +49,7 @@ public class MatchingService {
                 results.add(new MatchResultDto(userId, other.getUserId()));
             }
         }
+
         return results;
     }
 

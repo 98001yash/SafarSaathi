@@ -13,5 +13,4 @@ public interface CompanionRepository extends JpaRepository<Companion,Long> {
 
     List<Companion> findByStatus(String open);
 
-    List<Companion> findByMatchedUserIdsContains(Long userId);
 }

@@ -2,13 +2,11 @@ package com.company.SafarSaathi.companion_service.controller;
 
 
 import com.company.SafarSaathi.companion_service.dtos.CompanionDto;
-import com.company.SafarSaathi.companion_service.dtos.CompanionPreferenceDto;
 import com.company.SafarSaathi.companion_service.dtos.CreateCompanionRequest;
 import com.company.SafarSaathi.companion_service.dtos.UpdateCompanionRequest;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +20,12 @@ import java.util.List;
 public class CompanionController {
 
     private final CompanionService companionService;
-    private final ModelMapper modelMapper;
 
     @PostMapping
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
         CompanionDto created = companionService.createCompanion(requestDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<CompanionDto> updateCompanion(
@@ -39,8 +35,6 @@ public class CompanionController {
         CompanionDto updated = companionService.updateCompanion(id, request);
         return ResponseEntity.ok(updated);
     }
-
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompanion(@PathVariable Long id){
@@ -53,28 +47,5 @@ public class CompanionController {
     public ResponseEntity<List<CompanionDto>> getAllCompanions(){
         log.info("Getting all the companion");
         return ResponseEntity.ok(companionService.getAllCompanions());
-    }
-
-    @PostMapping("/preferences")
-    public ResponseEntity<CompanionPreferenceDto> setPreference(@RequestBody CompanionPreferenceDto dto){
-        log.info("setting  the companionPreference:");
-        return ResponseEntity.ok(companionService.createOrUpdatePreference(dto));
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<CompanionPreferenceDto> getPreferences(){
-        log.info("Getting all the preferences: ");
-        return ResponseEntity.ok(companionService.getPreference());
-    }
-
-    @PostMapping("/match")
-    public ResponseEntity<String> matchCompanions() {
-        companionService.matchCompanions();
-        return ResponseEntity.ok("Matching completed");
-    }
-
-    @GetMapping("/matches")
-    public ResponseEntity<List<CompanionDto>> myMatches() {
-        return ResponseEntity.ok(companionService.getMatchedForCurrentUser());
     }
 }

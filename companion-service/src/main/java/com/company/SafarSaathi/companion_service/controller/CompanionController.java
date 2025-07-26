@@ -4,6 +4,8 @@ package com.company.SafarSaathi.companion_service.controller;
 import com.company.SafarSaathi.companion_service.dtos.CompanionDto;
 import com.company.SafarSaathi.companion_service.dtos.CreateCompanionRequest;
 import com.company.SafarSaathi.companion_service.dtos.UpdateCompanionRequest;
+import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
+import com.company.SafarSaathi.companion_service.service.CompanionPreferenceService;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import java.util.List;
 public class CompanionController {
 
     private final CompanionService companionService;
+    private final CompanionPreferenceService preferenceService;
 
     @PostMapping
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
@@ -47,5 +50,18 @@ public class CompanionController {
     public ResponseEntity<List<CompanionDto>> getAllCompanions(){
         log.info("Getting all the companion");
         return ResponseEntity.ok(companionService.getAllCompanions());
+    }
+
+    @PostMapping
+    public ResponseEntity<String> savePreference(@RequestBody CompanionPreference preference) {
+        preferenceService.savePreference(preference);
+        return ResponseEntity.ok("Preference saved successfully");
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<CompanionPreference> getPreference(@PathVariable Long userId) {
+        return preferenceService.getPreferenceByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

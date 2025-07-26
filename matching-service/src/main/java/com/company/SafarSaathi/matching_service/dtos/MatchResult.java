@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchResultDto {
+public class MatchResult {
 
-    private Long userId;
-    private Long matchedWithUserId;
+     private int index;
+     private double  similarity;
 }

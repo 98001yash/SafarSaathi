@@ -25,8 +25,8 @@ public class CompanionPreference {
 
     private String preferredGender;
 
-    private Boolean allowSmokers;
-    private Boolean allowDrinkers;
+    private Boolean smokerOk;
+    private Boolean drinkerOk;
 
-    private String travelType ;
+    private String preferredTripMode;
 }

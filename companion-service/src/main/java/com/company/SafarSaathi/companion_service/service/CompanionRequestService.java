@@ -1,10 +1,11 @@
 package com.company.SafarSaathi.companion_service.service;
 
-
+import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
 import com.company.SafarSaathi.companion_service.dtos.CompanionRequestDto;
 import com.company.SafarSaathi.companion_service.dtos.CompanionRequestResponseDto;
 import com.company.SafarSaathi.companion_service.entity.CompanionRequest;
 import com.company.SafarSaathi.companion_service.enums.RequestStatus;
+import com.company.SafarSaathi.companion_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.companion_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.companion_service.repository.CompanionRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,65 +25,87 @@ public class CompanionRequestService {
     private final CompanionRequestRepository companionRequestRepository;
     private final ModelMapper modelMapper;
 
-    public CompanionRequestResponseDto sendRequest(CompanionRequestDto dto){
-        CompanionRequest request = new CompanionRequest();
+    public CompanionRequestResponseDto sendRequest(CompanionRequestDto dto) {
+        Long senderId = UserContextHolder.getCurrentUserId();
 
-        request.setSenderId(dto.getSenderId());
+        if (senderId.equals(dto.getReceiverId())) {
+            throw new IllegalArgumentException("You cannot send a request to yourself.");
+        }
+
+        companionRequestRepository.findBySenderIdAndReceiverIdAndTripId(senderId, dto.getReceiverId(), dto.getTripId())
+                .ifPresent(existing -> {
+                    throw new IllegalStateException("Request already exists for this user and trip.");
+                });
+
+        CompanionRequest request = new CompanionRequest();
+        request.setSenderId(senderId);
         request.setReceiverId(dto.getReceiverId());
         request.setTripId(dto.getTripId());
         request.setStatus(RequestStatus.PENDING);
         request.setTimeStamp(LocalDateTime.now());
 
         CompanionRequest saved = companionRequestRepository.save(request);
-        log.info("New companion Request sent from {} to {}",dto.getSenderId(), dto.getReceiverId());
+        log.info("Companion request sent from {} to {} for trip {}", senderId, dto.getReceiverId(), dto.getTripId());
 
         return modelMapper.map(saved, CompanionRequestResponseDto.class);
     }
 
+    public CompanionRequestResponseDto acceptRequest(Long requestId) {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
 
-    public CompanionRequestResponseDto acceptRequest(Long requestId){
         CompanionRequest request = companionRequestRepository.findById(requestId)
-                .orElseThrow(()->{
-                    log.error("Request ID {} not found with ACCEPT",requestId);
+                .orElseThrow(() -> {
+                    log.error("Request ID {} not found for ACCEPT", requestId);
                     return new ResourceNotFoundException("Request not found");
                 });
+
+        if (!request.getReceiverId().equals(currentUserId)) {
+            throw new BadRequestException("You are not authorized to accept this request.");
+        }
 
         request.setStatus(RequestStatus.ACCEPTED);
         companionRequestRepository.save(request);
-        log.info("Request ID {} accepted",requestId);
+        log.info("User {} accepted companion request from {}", currentUserId, request.getSenderId());
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
     }
 
+    public CompanionRequestResponseDto rejectRequest(Long requestId) {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
 
-    public CompanionRequestResponseDto rejectRequest(Long requestId){
         CompanionRequest request = companionRequestRepository.findById(requestId)
-                .orElseThrow(()->{
-                    log.error("Request ID {} not found for REJECT",requestId);
+                .orElseThrow(() -> {
+                    log.error("Request ID {} not found for REJECT", requestId);
                     return new ResourceNotFoundException("Request not found");
                 });
 
+        if (!request.getReceiverId().equals(currentUserId)) {
+            throw new BadRequestException("You are not authorized to reject this request.");
+        }
+
         request.setStatus(RequestStatus.REJECTED);
         companionRequestRepository.save(request);
-        log.info("Request ID {} rejected",requestId);
+        log.info("User {} rejected companion request from {}", currentUserId, request.getSenderId());
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
     }
 
-    public List<CompanionRequestResponseDto> getRequestsForUser(Long userId){
+    public List<CompanionRequestResponseDto> getRequestsForUser() {
+        Long userId = UserContextHolder.getCurrentUserId();
         List<CompanionRequest> requests = companionRequestRepository.findBtReceiverId(userId);
 
-        log.info("Retrieved {} requests for user: {}",requests.size(), userId);
+        log.info("Retrieved {} requests for user: {}", requests.size(), userId);
 
         return requests.stream()
-                .map(req->modelMapper.map(req, CompanionRequestResponseDto.class))
+                .map(req -> modelMapper.map(req, CompanionRequestResponseDto.class))
                 .collect(Collectors.toList());
     }
 
-    public List<CompanionRequestResponseDto> getSentRequests(Long userId){
+    public List<CompanionRequestResponseDto> getSentRequests() {
+        Long userId = UserContextHolder.getCurrentUserId();
         List<CompanionRequest> requests = companionRequestRepository.findBySenderId(userId);
 
-        log.info("Retrieved {} sent requests by user: {}",requests.size(), userId);
+        log.info("Retrieved {} sent requests by user: {}", requests.size(), userId);
 
         return requests.stream()
                 .map(req -> modelMapper.map(req, CompanionRequestResponseDto.class))

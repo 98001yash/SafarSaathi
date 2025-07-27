@@ -1,6 +1,7 @@
 package com.company.SafarSaathi.companion_service.entity;
 
 
+import com.company.SafarSaathi.companion_service.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

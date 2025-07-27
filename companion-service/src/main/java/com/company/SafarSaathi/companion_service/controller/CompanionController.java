@@ -93,4 +93,21 @@ public class CompanionController {
         log.info("User {} is rejecting request ID: {}",currentUserId, requestId);
         return ResponseEntity.ok(companionRequestService.rejectRequest(requestId));
     }
+
+    @GetMapping("/received")
+    public ResponseEntity<List<CompanionRequestResponseDto>> getReceivedRequests() {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+        log.info("Fetching received companion requests for user {}", currentUserId);
+
+        return ResponseEntity.ok(companionRequestService.getRequestsForUser());
+    }
+
+    @GetMapping("/sent")
+    public ResponseEntity<List<CompanionRequestResponseDto>> getSentRequests() {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+        log.info("Fetching sent companion requests by user {}", currentUserId);
+
+        return ResponseEntity.ok(companionRequestService.getSentRequests());
+    }
+
 }

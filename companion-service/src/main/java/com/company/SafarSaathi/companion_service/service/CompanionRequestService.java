@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,5 +67,25 @@ public class CompanionRequestService {
         log.info("Request ID {} rejected",requestId);
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
+    }
+
+    public List<CompanionRequestResponseDto> getRequestsForUser(Long userId){
+        List<CompanionRequest> requests = companionRequestRepository.findBtReceiverId(userId);
+
+        log.info("Retrieved {} requests for user: {}",requests.size(), userId);
+
+        return requests.stream()
+                .map(req->modelMapper.map(req, CompanionRequestResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<CompanionRequestResponseDto> getSentRequests(Long userId){
+        List<CompanionRequest> requests = companionRequestRepository.findBySenderId(userId);
+
+        log.info("Retrieved {} sent requests by user: {}",requests.size(), userId);
+
+        return requests.stream()
+                .map(req -> modelMapper.map(req, CompanionRequestResponseDto.class))
+                .collect(Collectors.toList());
     }
 }

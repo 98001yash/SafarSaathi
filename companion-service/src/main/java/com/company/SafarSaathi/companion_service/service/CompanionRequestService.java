@@ -51,4 +51,19 @@ public class CompanionRequestService {
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
     }
+
+
+    public CompanionRequestResponseDto rejectRequest(Long requestId){
+        CompanionRequest request = companionRequestRepository.findById(requestId)
+                .orElseThrow(()->{
+                    log.error("Request ID {} not found for REJECT",requestId);
+                    return new ResourceNotFoundException("Request not found");
+                });
+
+        request.setStatus(RequestStatus.REJECTED);
+        companionRequestRepository.save(request);
+        log.info("Request ID {} rejected",requestId);
+
+        return modelMapper.map(request, CompanionRequestResponseDto.class);
+    }
 }

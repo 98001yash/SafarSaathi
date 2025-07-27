@@ -1,11 +1,11 @@
 package com.company.SafarSaathi.companion_service.controller;
 
 
-import com.company.SafarSaathi.companion_service.dtos.CompanionDto;
-import com.company.SafarSaathi.companion_service.dtos.CreateCompanionRequest;
-import com.company.SafarSaathi.companion_service.dtos.UpdateCompanionRequest;
+import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
+import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
 import com.company.SafarSaathi.companion_service.service.CompanionPreferenceService;
+import com.company.SafarSaathi.companion_service.service.CompanionRequestService;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +23,7 @@ public class CompanionController {
 
     private final CompanionService companionService;
     private final CompanionPreferenceService preferenceService;
+    private final CompanionRequestService companionRequestService;
 
     @PostMapping
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
@@ -63,5 +64,26 @@ public class CompanionController {
         return preferenceService.getPreferenceByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    // code fpr the companion Request controller
+
+
+    @PostMapping("/send")
+    public ResponseEntity<CompanionRequestResponseDto> sendRequest(@RequestBody CompanionRequestDto dto){
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+        dto.setSenderId(currentUserId);
+        log.info("User {} sending a companion request to user: {}",currentUserId, dto.getReceiverId());
+        return ResponseEntity.ok(companionRequestService.sendRequest(dto));
+    }
+
+    @PostMapping("/{requestId}/accept")
+    public ResponseEntity<CompanionRequestResponseDto> acceptRequest(@PathVariable Long requestId){
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+
+        log.info("User {} is accepting request ID {}",currentUserId, requestId);
+
+        return ResponseEntity.ok(companionRequestService.acceptRequest(requestId));
     }
 }

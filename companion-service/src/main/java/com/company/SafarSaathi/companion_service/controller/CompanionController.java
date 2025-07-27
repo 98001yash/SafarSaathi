@@ -25,7 +25,7 @@ public class CompanionController {
     private final CompanionPreferenceService preferenceService;
     private final CompanionRequestService companionRequestService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
         CompanionDto created = companionService.createCompanion(requestDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
@@ -53,7 +53,7 @@ public class CompanionController {
         return ResponseEntity.ok(companionService.getAllCompanions());
     }
 
-    @PostMapping
+    @PostMapping("/preferences")
     public ResponseEntity<String> savePreference(@RequestBody CompanionPreference preference) {
         preferenceService.savePreference(preference);
         return ResponseEntity.ok("Preference saved successfully");

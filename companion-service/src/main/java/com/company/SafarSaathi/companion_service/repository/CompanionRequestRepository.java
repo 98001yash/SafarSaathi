@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CompanionRequestRepository extends JpaRepository<CompanionRequest,Long> {
 
 
-    List<CompanionRequest> findBtReceiverId(Long receiverId);
+    List<CompanionRequest> findByReceiverId(Long receiverId);
 
     List<CompanionRequest> findBySenderId(Long senderId);
 

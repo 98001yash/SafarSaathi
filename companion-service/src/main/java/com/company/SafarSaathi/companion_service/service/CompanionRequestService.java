@@ -52,6 +52,8 @@ public class CompanionRequestService {
 
     public CompanionRequestResponseDto acceptRequest(Long requestId) {
         Long currentUserId = UserContextHolder.getCurrentUserId();
+        log.info("Attempting to accept request with ID: {}", requestId);
+        log.info("Current user ID from context: {}", currentUserId);
 
         CompanionRequest request = companionRequestRepository.findById(requestId)
                 .orElseThrow(() -> {
@@ -59,19 +61,28 @@ public class CompanionRequestService {
                     return new ResourceNotFoundException("Request not found");
                 });
 
+        log.info("Fetched request details -> Sender: {}, Receiver: {}, Trip: {}, Status: {}",
+                request.getSenderId(), request.getReceiverId(), request.getTripId(), request.getStatus());
+
         if (!request.getReceiverId().equals(currentUserId)) {
+            log.warn("Unauthorized accept attempt. Receiver ID: {}, Current User ID: {}",
+                    request.getReceiverId(), currentUserId);
             throw new BadRequestException("You are not authorized to accept this request.");
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
         companionRequestRepository.save(request);
-        log.info("User {} accepted companion request from {}", currentUserId, request.getSenderId());
+        log.info("User {} accepted companion request ID {} from sender {}",
+                currentUserId, requestId, request.getSenderId());
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
     }
 
     public CompanionRequestResponseDto rejectRequest(Long requestId) {
+        log.info("Attempting to reject request with ID: {}", requestId);
+
         Long currentUserId = UserContextHolder.getCurrentUserId();
+        log.info("Current user ID from context: {}", currentUserId);
 
         CompanionRequest request = companionRequestRepository.findById(requestId)
                 .orElseThrow(() -> {
@@ -79,20 +90,26 @@ public class CompanionRequestService {
                     return new ResourceNotFoundException("Request not found");
                 });
 
+        log.info("Fetched request details -> Sender: {}, Receiver: {}, Trip: {}, Status: {}",
+                request.getSenderId(), request.getReceiverId(), request.getTripId(), request.getStatus());
+
         if (!request.getReceiverId().equals(currentUserId)) {
+            log.warn("Unauthorized reject attempt. Receiver ID: {}, Current User ID: {}", request.getReceiverId(), currentUserId);
             throw new BadRequestException("You are not authorized to reject this request.");
         }
 
         request.setStatus(RequestStatus.REJECTED);
         companionRequestRepository.save(request);
+
         log.info("User {} rejected companion request from {}", currentUserId, request.getSenderId());
 
         return modelMapper.map(request, CompanionRequestResponseDto.class);
     }
 
+
     public List<CompanionRequestResponseDto> getRequestsForUser() {
         Long userId = UserContextHolder.getCurrentUserId();
-        List<CompanionRequest> requests = companionRequestRepository.findBtReceiverId(userId);
+        List<CompanionRequest> requests = companionRequestRepository.findByReceiverId(userId);
 
         log.info("Retrieved {} requests for user: {}", requests.size(), userId);
 

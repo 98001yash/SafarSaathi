@@ -55,6 +55,15 @@ spring:
             - StripPrefix=2
             - name: AuthenticationFilter
 
+
+        - id: Bot-service
+          uri: lb://Bot-service
+          predicates:
+            - Path=/api/v4/bot/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
+
 eureka:
   client:
     service-url:

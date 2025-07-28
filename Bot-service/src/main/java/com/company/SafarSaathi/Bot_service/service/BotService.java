@@ -1,75 +1,63 @@
 package com.company.SafarSaathi.Bot_service.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class BotService {
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public SseEmitter streamWithSse(String userMessage) {
-        SseEmitter emitter = new SseEmitter(0L); // no timeout
+    public String getBotReply(String userMessage) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("model", "gemma");
+            body.put("prompt", "You are a helpful travel assistant:\n" + userMessage);
+            body.put("stream", false); // Disable streaming
 
-        new Thread(() -> {
-            try {
-                String prompt = "You are a helpful travel assistant. Answer clearly:\n" + userMessage;
+            String jsonBody = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(body);
 
-                // Setup HTTP POST request
-                URL url = new URL(OLLAMA_URL);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setDoOutput(true);
+            URL url = new URL("http://localhost:11434/api/generate");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
 
-                // Send JSON payload
-                String requestBody = String.format("""
-                        {
-                          "model": "gemma",
-                          "prompt": "%s",
-                          "stream": true
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonBody.getBytes());
+                os.flush();
+            }
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                StringBuilder fullResponse = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty() && line.startsWith("data:")) {
+                        String json = line.substring(5).trim();
+                        Map<String, Object> chunk = new com.fasterxml.jackson.databind.ObjectMapper().readValue(json, Map.class);
+                        String token = (String) chunk.get("response");
+                        if (token != null) {
+                            fullResponse.append(token);
                         }
-                        """, prompt.replace("\"", "\\\""));
-
-                try (OutputStream os = connection.getOutputStream()) {
-                    os.write(requestBody.getBytes(StandardCharsets.UTF_8));
-                }
-
-                // Read response stream line by line
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        if (line.trim().isEmpty()) continue;
-
-                        JsonNode json = objectMapper.readTree(line);
-                        String chunk = json.get("response").asText();
-
-                        emitter.send(chunk);
                     }
                 }
 
-                emitter.complete();
-            } catch (Exception e) {
-                try {
-                    emitter.send("Error: " + e.getMessage());
-                } catch (Exception ignored) {}
-                emitter.completeWithError(e);
+                return fullResponse.toString();
             }
-        }).start();
 
-        return emitter;
+        } catch (Exception e) {
+            log.error("Error while getting bot reply", e);
+            return "Error: " + e.getMessage();
+        }
     }
+
 }

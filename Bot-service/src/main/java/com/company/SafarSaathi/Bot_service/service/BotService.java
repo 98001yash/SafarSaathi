@@ -1,7 +1,9 @@
 package com.company.SafarSaathi.Bot_service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -18,46 +20,45 @@ public class BotService {
 
     public String getBotReply(String userMessage) {
         try {
+            // Prepare request body
             Map<String, Object> body = new HashMap<>();
             body.put("model", "gemma");
             body.put("prompt", "You are a helpful travel assistant:\n" + userMessage);
-            body.put("stream", false); // Disable streaming
+            body.put("stream", false); // disable streaming for full response
 
-            String jsonBody = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(body);
+            // Convert to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonBody = objectMapper.writeValueAsString(body);
 
-            URL url = new URL("http://localhost:11434/api/generate");
+            // Setup HTTP connection
+            URL url = new URL(OLLAMA_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/json");
 
+            // Send request
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(jsonBody.getBytes());
                 os.flush();
             }
 
+            // Read full response
+            StringBuilder responseBuilder = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                StringBuilder fullResponse = new StringBuilder();
                 String line;
-
                 while ((line = reader.readLine()) != null) {
-                    if (!line.trim().isEmpty() && line.startsWith("data:")) {
-                        String json = line.substring(5).trim();
-                        Map<String, Object> chunk = new com.fasterxml.jackson.databind.ObjectMapper().readValue(json, Map.class);
-                        String token = (String) chunk.get("response");
-                        if (token != null) {
-                            fullResponse.append(token);
-                        }
-                    }
+                    responseBuilder.append(line);
                 }
-
-                return fullResponse.toString();
             }
+
+            // Parse JSON and extract "response"
+            Map<String, Object> responseMap = objectMapper.readValue(responseBuilder.toString(), Map.class);
+            return (String) responseMap.get("response");
 
         } catch (Exception e) {
             log.error("Error while getting bot reply", e);
             return "Error: " + e.getMessage();
         }
     }
-
 }

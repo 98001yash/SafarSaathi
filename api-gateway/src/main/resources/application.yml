@@ -62,7 +62,6 @@ spring:
             - Path=/api/v4/bot/**
           filters:
             - StripPrefix=2
-            - SetResponseHeader=Content-Type, text/event-stream
             - name: AuthenticationFilter
 
 eureka:

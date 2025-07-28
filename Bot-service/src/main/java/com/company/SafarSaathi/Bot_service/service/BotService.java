@@ -1,53 +1,75 @@
 package com.company.SafarSaathi.Bot_service.service;
 
-
-
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class BotService {
 
-    private final RestTemplate restTemplate;
-
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getBotResponse(String userMessage) {
-        // Prepare prompt
-        String prompt = "You are a helpful travel assistant. Answer the user's query clearly and concisely:\n" + userMessage;
+    public SseEmitter streamWithSse(String userMessage) {
+        SseEmitter emitter = new SseEmitter(0L); // no timeout
 
-        // Create request body
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gemma");      // or mistral, llama3, etc.
-        requestBody.put("prompt", prompt);
-        requestBody.put("stream", false);
+        new Thread(() -> {
+            try {
+                String prompt = "You are a helpful travel assistant. Answer clearly:\n" + userMessage;
 
-        // Set headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+                // Setup HTTP POST request
+                URL url = new URL(OLLAMA_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
 
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+                // Send JSON payload
+                String requestBody = String.format("""
+                        {
+                          "model": "gemma",
+                          "prompt": "%s",
+                          "stream": true
+                        }
+                        """, prompt.replace("\"", "\\\""));
 
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(OLLAMA_URL, requestEntity, Map.class);
-            String result = (String) response.getBody().get("response");
+                try (OutputStream os = connection.getOutputStream()) {
+                    os.write(requestBody.getBytes(StandardCharsets.UTF_8));
+                }
 
-            log.info("Ollama response: {}", result);
-            return result;
-        } catch (Exception ex) {
-            log.error("Failed to get response from Ollama: {}", ex.getMessage());
-            throw new RuntimeException("Bot service is currently unavailable.");
-        }
+                // Read response stream line by line
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        if (line.trim().isEmpty()) continue;
+
+                        JsonNode json = objectMapper.readTree(line);
+                        String chunk = json.get("response").asText();
+
+                        emitter.send(chunk);
+                    }
+                }
+
+                emitter.complete();
+            } catch (Exception e) {
+                try {
+                    emitter.send("Error: " + e.getMessage());
+                } catch (Exception ignored) {}
+                emitter.completeWithError(e);
+            }
+        }).start();
+
+        return emitter;
     }
 }

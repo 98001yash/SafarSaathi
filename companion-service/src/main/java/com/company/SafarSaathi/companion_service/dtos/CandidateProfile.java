@@ -5,16 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchRequest {
-    private UserProfile userProfile;
-    private CompanionPreferenceDto userPreference;
-    private TripDto trip;
+public class CandidateProfile {
 
-    private List<CandidateProfile> candidates;
+
+    private CompanionDto companion;
+    private UserProfile userProfile;
+    private CompanionPreferenceDto preference;
 }

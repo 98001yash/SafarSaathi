@@ -12,7 +12,7 @@ import java.util.List;
 public class MatchRequest {
 
 
-    @JsonProperty("user_profile")
+    @JsonProperty("profile")
     private CompanionProfile userProfile;
 
     @JsonProperty("candidates")

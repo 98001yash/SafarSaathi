@@ -2,19 +2,24 @@ package com.company.SafarSaathi.matching_service.dtos;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class MatchRequest {
 
 
-    @JsonProperty("profile")
+    @JsonProperty("user_profile")
     private CompanionProfile userProfile;
-    public List<CompanionProfile> candidates;
+
+    @JsonProperty("candidates")
+    private List<CompanionProfile> candidates;
+
+    public MatchRequest(CompanionProfile userProfile, List<CompanionProfile> candidates) {
+        this.userProfile = userProfile;
+        this.candidates = candidates;
+    }
 }

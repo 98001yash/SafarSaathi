@@ -89,7 +89,7 @@ public class CompanionService {
         }
 
         companionRepository.delete(companion);
-        log.info("Companion ID: {} deleted", id);
+        log.info("Companion with ID: {} deleted", id);
     }
 
     public List<CompanionDto> getAllCompanions(){

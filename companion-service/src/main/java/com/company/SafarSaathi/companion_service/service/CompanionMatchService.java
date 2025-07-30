@@ -32,8 +32,10 @@ public class CompanionMatchService {
     private final TripClient tripClient;
     private final UserClient userClient;
 
-    public List<CompanionDto> getTopMatches(Long userId, Long tripId) {
+    public List<CompanionDto> getTopMatches(Long tripId) {
 
+        // authenticate the User
+        Long userId = UserContextHolder.getCurrentUserId();
 
         // 1. Fetch UserProfile
         UserProfile userProfile = userClient.getUserProfile(userId);
@@ -69,8 +71,6 @@ public class CompanionMatchService {
                     .build());
         }
 
-
-
         // 5. Create MatchRequest
         MatchRequest request = MatchRequest.builder()
                 .userProfile(userProfile)
@@ -78,8 +78,6 @@ public class CompanionMatchService {
                 .trip(trip)
                 .candidates(candidateProfiles)
                 .build();
-
-
 
         // 6. Call Matching Service
         return matchingClient.getTopMatches(request);

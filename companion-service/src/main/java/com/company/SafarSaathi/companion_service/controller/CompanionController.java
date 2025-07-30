@@ -4,6 +4,7 @@ package com.company.SafarSaathi.companion_service.controller;
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
 import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
+import com.company.SafarSaathi.companion_service.service.CompanionMatchService;
 import com.company.SafarSaathi.companion_service.service.CompanionPreferenceService;
 import com.company.SafarSaathi.companion_service.service.CompanionRequestService;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
@@ -24,6 +25,7 @@ public class CompanionController {
     private final CompanionService companionService;
     private final CompanionPreferenceService preferenceService;
     private final CompanionRequestService companionRequestService;
+    private final CompanionMatchService companionMatchService;
 
     @PostMapping("/create")
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
@@ -108,6 +110,14 @@ public class CompanionController {
         log.info("Fetching sent companion requests by user {}", currentUserId);
 
         return ResponseEntity.ok(companionRequestService.getSentRequests());
+    }
+
+
+    // controller for the companion Matching
+
+    @GetMapping("/match/{tripId}")
+    public ResponseEntity<List<CompanionDto>> getTopMatches(@PathVariable Long tripId){
+        return ResponseEntity.ok(companionMatchService.getTopMatches(tripId));
     }
 
 }

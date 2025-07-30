@@ -32,7 +32,7 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
     @GetMapping("/{id}/profile")
-    public ResponseEntity<UserDto> getProfile(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUserProfile(@PathVariable Long id) {
         return ResponseEntity.ok(authService.getUserProfile(id));
     }
 

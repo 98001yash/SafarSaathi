@@ -200,6 +200,4 @@ public class TripService {
                 .map(trip -> modelMapper.map(trip, TripDto.class));
     }
 
-
-
 }

@@ -1,6 +1,7 @@
 package com.company.SafarSaathi.matching_service.client;
 
 
+import com.company.SafarSaathi.matching_service.dtos.MatchRequest;
 import com.company.SafarSaathi.matching_service.dtos.PythonMatchResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

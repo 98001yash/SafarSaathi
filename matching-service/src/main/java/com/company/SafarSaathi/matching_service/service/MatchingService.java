@@ -1,7 +1,7 @@
 package com.company.SafarSaathi.matching_service.service;
 
 
-import com.company.SafarSaathi.matching_service.client.MatchingClient;
+import com.company.SafarSaathi.matching_service.client.PythonMatchingClient;
 import com.company.SafarSaathi.matching_service.dtos.CompanionProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class MatchingService {
 
 
-    private final MatchingClient matchingClient;
+    private final PythonMatchingClient matchingClient;
 
     public List<CompanionProfile> findTopMatches(CompanionProfile user, List<CompanionProfile> candidates) {
         MatchRequest request = new MatchRequest();

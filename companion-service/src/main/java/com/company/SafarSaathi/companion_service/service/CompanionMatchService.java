@@ -32,7 +32,7 @@ public class CompanionMatchService {
     private final TripClient tripClient;
     private final UserClient userClient;
 
-    public List<CompanionDto> getTopMatches(Long tripId) {
+    public List<CompanionProfile> getTopMatches(Long tripId) {
 
         // authenticate the User
         Long userId = UserContextHolder.getCurrentUserId();

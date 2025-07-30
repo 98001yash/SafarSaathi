@@ -19,7 +19,7 @@ public class MatchingController {
 
     private final MatchingService matchingService;
 
-    @PostMapping
+    @PostMapping("/top-matches")
     public List<CompanionProfile> getMatches(@RequestBody MatchRequest request){
         return matchingService.findTopMatches(request.getUserProfile(), request.getCandidates());
     }

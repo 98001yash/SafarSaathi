@@ -1,8 +1,6 @@
 package com.company.SafarSaathi.matching_service.client;
 
 
-import com.company.SafarSaathi.matching_service.dtos.MatchRequest;
-import com.company.SafarSaathi.matching_service.dtos.MatchResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

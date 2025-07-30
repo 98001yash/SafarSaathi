@@ -2,7 +2,6 @@ package com.company.SafarSaathi.matching_service.controller;
 
 
 import com.company.SafarSaathi.matching_service.dtos.CompanionProfile;
-import com.company.SafarSaathi.matching_service.dtos.MatchRequest;
 import com.company.SafarSaathi.matching_service.service.MatchingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,31 +18,4 @@ public class MatchingController {
 
     private final MatchingService matchingService;
 
-    @PostMapping
-    public List<CompanionProfile> getMatches(@RequestBody MatchRequest request){
-        return matchingService.findTopMatches(request.getUserProfile(), request.getCandidates());
-    }
-
-
-    // for testing purpose
-    @PostMapping("/test")
-    public List<CompanionProfile> testMatching() {
-        // Create a mock user profile
-        CompanionProfile user = new CompanionProfile();
-        user.setAge(25);
-        user.setGender("female");
-        user.setSmoker(false);
-        user.setDrinker(false);
-        user.setTravelType("adventure");
-        user.setTripMode("train");
-
-        // Create mock candidate profiles
-        CompanionProfile c1 = new CompanionProfile(26, "male", false, false, "adventure", "train");
-        CompanionProfile c2 = new CompanionProfile(22, "male", true, true, "relaxation", "flight");
-        CompanionProfile c3 = new CompanionProfile(25, "female", false, false, "adventure", "train");
-
-        List<CompanionProfile> candidates = List.of(c1, c2, c3);
-
-        return matchingService.findTopMatches(user, candidates);
-    }
 }

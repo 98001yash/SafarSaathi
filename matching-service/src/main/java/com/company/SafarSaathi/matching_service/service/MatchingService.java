@@ -3,8 +3,6 @@ package com.company.SafarSaathi.matching_service.service;
 
 import com.company.SafarSaathi.matching_service.client.MatchingClient;
 import com.company.SafarSaathi.matching_service.dtos.CompanionProfile;
-import com.company.SafarSaathi.matching_service.dtos.MatchRequest;
-import com.company.SafarSaathi.matching_service.dtos.MatchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

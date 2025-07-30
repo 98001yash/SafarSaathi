@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MatchResultDto {
 
-    public Double score;
+    private  Double score;
+    private CompanionProfile profile;
 }

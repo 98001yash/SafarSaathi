@@ -17,7 +17,7 @@ public class JwtService {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
-    private SecretKey getSecretKey(){
+    private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -28,6 +28,11 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return claims.getSubject();
+        Object userIdObj = claims.get("userId");
+        if (userIdObj == null) {
+            throw new RuntimeException("Missing userId claim in JWT");
+        }
+
+        return userIdObj.toString();  // Return the actual userId claim
     }
 }

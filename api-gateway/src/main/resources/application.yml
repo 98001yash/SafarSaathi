@@ -1,5 +1,8 @@
 jwt:
-  secretKey: rfufjjhffdstigjkhivnbfkgghiuregfgfgkfnfbgfgrfhreifegtegjgjfjvcvnkffdghgregrelgjore
+  secretKey: ZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNklqRXdOVFU1T1RBM05UVTVNQ0lzSW5OMVlpSTZJak5DTnpBek9URXhOREV5TVY4eE5qUXlNREUzT0NKOS5ZT3c5
+
+
+
 
 server:
   port: 8080

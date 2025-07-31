@@ -28,12 +28,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
         return (exchange, chain) -> {
             String path = exchange.getRequest().getURI().getPath();
 
-            //  Skip authentication for public endpoints
-            if (path.contains("/auth/login") || path.contains("/auth/signup")) {
-                return chain.filter(exchange);  // Allow request to proceed
+            // ✅ Only skip exact public endpoints
+            if (path.equals("/auth/login") || path.equals("/auth/signup")) {
+                log.info("Public path, skipping authentication: {}", path);
+                return chain.filter(exchange);
             }
 
-            log.info("Login request: {}", exchange.getRequest().getURI());
+            log.info("Authenticating request to: {}", path);
 
             final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
@@ -43,7 +44,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
                 return exchange.getResponse().setComplete();
             }
 
-            // Use substring instead of split to avoid exceptions
             final String token = tokenHeader.substring(7).trim();
 
             try {
@@ -64,7 +64,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
     }
 
 
-    public static class Config{
-
+    public static class Config {
+        // You can leave this empty
     }
 }

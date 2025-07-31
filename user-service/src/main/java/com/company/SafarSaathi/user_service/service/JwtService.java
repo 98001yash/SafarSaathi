@@ -25,19 +25,20 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    String generateAccessToken(User user){
-
+    public String generateAccessToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
 
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(user.getId().toString())
-                .claim("email",user.getEmail())
+                .claim("email", user.getEmail())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+1000 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10))  // 10 minutes
                 .signWith(getSecretKey())
                 .compact();
     }
+
 
     private Long getUserIdFromToken(String token){
         Claims claims = Jwts.parser()

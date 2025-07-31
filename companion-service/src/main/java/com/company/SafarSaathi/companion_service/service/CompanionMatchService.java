@@ -1,6 +1,5 @@
 package com.company.SafarSaathi.companion_service.service;
 
-
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
 import com.company.SafarSaathi.companion_service.client.MatchingClient;
 import com.company.SafarSaathi.companion_service.client.TripClient;
@@ -34,35 +33,57 @@ public class CompanionMatchService {
 
     public List<CompanionProfile> getTopMatches(Long tripId) {
 
-        // authenticate the User
+        // 1. Authenticate the User
         Long userId = UserContextHolder.getCurrentUserId();
+        log.info("[MATCH] Fetching top matches for userId: {}", userId);
 
-        // 1. Fetch UserProfile
+        // 2. Fetch UserProfile
+        log.info("[MATCH] Fetching user profile for userId: {}", userId);
         UserProfile userProfile = userClient.getUserProfile(userId);
+        log.info("[MATCH] User profile fetched: {}", userProfile);
 
-
-
-        // 2. Fetch User Preference
+        // 3. Fetch User Preference
+        log.info("[MATCH] Fetching preferences for userId: {}", userId);
         CompanionPreference preference = preferenceRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Preference not found"));
+                .orElseThrow(() -> {
+                    log.warn("[MATCH] No preferences found for userId: {}", userId);
+                    return new ResourceNotFoundException("Preference not found");
+                });
         CompanionPreferenceDto preferenceDto = modelMapper.map(preference, CompanionPreferenceDto.class);
+        log.info("[MATCH] User preference fetched: {}", preferenceDto);
 
-
-        // 3. Fetch Trip Details
+        // 4. Fetch Trip Details
+        log.info("[MATCH] Fetching trip by tripId: {}", tripId);
         TripDto trip = tripClient.getTripById(tripId);
+        log.info("[MATCH] Trip fetched: {}", trip);
 
-
-        // 4. Fetch All Candidates
+        // 5. Fetch All Open Companion Candidates
+        log.info("[MATCH] Fetching all open companions...");
         List<Companion> candidates = companionRepository.findByStatus("OPEN");
+        log.info("[MATCH] Total open companions fetched: {}", candidates.size());
+
         List<CandidateProfile> candidateProfiles = new ArrayList<>();
 
         for (Companion c : candidates) {
-            if (c.getUserId().equals(userId)) continue; // Skip self
+            if (c.getUserId().equals(userId)) {
+                log.info("[MATCH] Skipping self candidate with userId: {}", c.getUserId());
+                continue;
+            }
 
+            log.info("[MATCH] Fetching candidate user profile for userId: {}", c.getUserId());
             UserProfile candidateProfile = userClient.getUserProfile(c.getUserId());
+            log.info("[MATCH] Candidate profile fetched: {}", candidateProfile);
+
             CompanionPreferenceDto candidatePref = preferenceRepository.findByUserId(c.getUserId())
-                    .map(p -> modelMapper.map(p, CompanionPreferenceDto.class))
+                    .map(p -> {
+                        log.info("[MATCH] Candidate preference found for userId: {}", c.getUserId());
+                        return modelMapper.map(p, CompanionPreferenceDto.class);
+                    })
                     .orElse(null);
+
+            if (candidatePref == null) {
+                log.warn("[MATCH] No preferences found for candidate userId: {}", c.getUserId());
+            }
 
             candidateProfiles.add(CandidateProfile.builder()
                     .companion(modelMapper.map(c, CompanionDto.class))
@@ -71,7 +92,7 @@ public class CompanionMatchService {
                     .build());
         }
 
-        // 5. Create MatchRequest
+        // 6. Construct Match Request
         MatchRequest request = MatchRequest.builder()
                 .userProfile(userProfile)
                 .userPreference(preferenceDto)
@@ -79,7 +100,12 @@ public class CompanionMatchService {
                 .candidates(candidateProfiles)
                 .build();
 
-        // 6. Call Matching Service
-        return matchingClient.getTopMatches(request);
+        log.info("[MATCH] MatchRequest built. Sending to matching-service: {}", request);
+
+        // 7. Call Matching Service
+        List<CompanionProfile> matches = matchingClient.getTopMatches(request);
+        log.info("[MATCH] Received {} matches from matching-service", matches.size());
+
+        return matches;
     }
 }

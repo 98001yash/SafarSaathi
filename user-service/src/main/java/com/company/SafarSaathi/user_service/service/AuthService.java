@@ -2,6 +2,7 @@ package com.company.SafarSaathi.user_service.service;
 
 
 
+import com.company.SafarSaathi.user_service.auth.UserContextHolder;
 import com.company.SafarSaathi.user_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.user_service.dtos.SignupRequestDto;
 import com.company.SafarSaathi.user_service.dtos.UserDto;
@@ -50,9 +51,17 @@ public class AuthService {
     }
 
 
-    public UserDto getUserProfile(Long userId){
+    public UserDto getUserProfile() {
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        if (userId == null) {
+            log.warn("No user ID found in context. Unauthorized access.");
+            throw new BadRequestException("User not authenticated");
+        }
+
         User user = userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("User not found with ID: "+userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
         return modelMapper.map(user, UserDto.class);
     }
 

@@ -5,8 +5,12 @@ package com.company.SafarSaathi.user_service.controller;
 import com.company.SafarSaathi.user_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.user_service.dtos.SignupRequestDto;
 import com.company.SafarSaathi.user_service.dtos.UserDto;
+import com.company.SafarSaathi.user_service.entities.User;
+import com.company.SafarSaathi.user_service.exceptions.ResourceNotFoundException;
+import com.company.SafarSaathi.user_service.repository.UserRepository;
 import com.company.SafarSaathi.user_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
 
     @PostMapping("/signup")
@@ -31,9 +37,10 @@ public class AuthController {
 
         return ResponseEntity.ok(token);
     }
-    @GetMapping("/{id}/profile")
-    public ResponseEntity<UserDto> getUserProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(authService.getUserProfile(id));
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getLoggedInUserProfile() {
+        UserDto profile = authService.getUserProfile(); // uses UserContextHolder
+        return ResponseEntity.ok(profile);
     }
 
 

@@ -67,6 +67,16 @@ spring:
             - StripPrefix=2
             - name: AuthenticationFilter
 
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            -Path=/api/v4/user/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
+
+
 eureka:
   client:
     service-url:

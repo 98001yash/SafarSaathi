@@ -1,8 +1,7 @@
 package com.company.SafarSaathi.auth_service.service;
 
-import com.company.SafarSaathi.auth_service.dtos.LoginRequestDto;
-import com.company.SafarSaathi.auth_service.dtos.SignupRequestDto;
-import com.company.SafarSaathi.auth_service.dtos.UserProfileCreateRequest;
+import com.company.SafarSaathi.auth_service.client.UserServiceClient;
+import com.company.SafarSaathi.auth_service.dtos.*;
 import com.company.SafarSaathi.auth_service.entities.User;
 import com.company.SafarSaathi.auth_service.enums.Role;
 import com.company.SafarSaathi.auth_service.exceptions.BadRequestException;
@@ -22,32 +21,46 @@ public class AuthService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
+    private final UserServiceClient userServiceClient;
 
     public UserProfileCreateRequest signUp(SignupRequestDto signupRequestDto) {
-        boolean exists = userRepository.existsByEmail(signupRequestDto.getEmail());
-        if (exists) {
-            throw new BadRequestException("User already exists, cannot signup again");
+        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+            throw new BadRequestException("User already exists");
         }
 
-        User user = modelMapper.map(signupRequestDto, User.class);
-        user.setPassword(PasswordUtils.hashPassword(signupRequestDto.getPassword()));
-
-        // Ensure role is explicitly set to TRAVELLER
-        user.setRole(Role.TRAVELLER);
+        User user = User.builder()
+                .fullName(signupRequestDto.getFullName())
+                .email(signupRequestDto.getEmail())
+                .password(PasswordUtils.hashPassword(signupRequestDto.getPassword()))
+                .role(Role.TRAVELLER)
+                .build();
 
         User savedUser = userRepository.save(user);
-        return modelMapper.map(savedUser, UserProfileCreateRequest.class);
+
+        // Send basic profile creation request
+        BasicProfileCreateRequest profileRequest = BasicProfileCreateRequest.builder()
+                .userId(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .build();
+
+        userServiceClient.createUser(profileRequest);
+
+        return UserProfileCreateRequest.builder()
+                .userId(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .build(); // Return basic profile info (optional)
     }
 
     public String login(LoginRequestDto loginRequestDto) {
         User user = userRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginRequestDto.getEmail()));
 
-        boolean isPasswordMatch = PasswordUtils.checkPassword(loginRequestDto.getPassword(), user.getPassword());
-
-        if (!isPasswordMatch) {
+        if (!PasswordUtils.checkPassword(loginRequestDto.getPassword(), user.getPassword())) {
             throw new BadRequestException("Incorrect password");
         }
+
         return jwtService.generateAccessToken(user);
     }
 }

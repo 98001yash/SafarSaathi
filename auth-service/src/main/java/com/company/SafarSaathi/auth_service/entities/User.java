@@ -12,14 +12,15 @@ import lombok.*;
 @Table(name = "app_user")
 public class User {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // Optional if you want to store user's name
+    private String fullName;
     private String email;
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.TRAVELLER; // Default role
+    private Role role = Role.TRAVELLER;
 }

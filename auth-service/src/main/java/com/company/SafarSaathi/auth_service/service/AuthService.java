@@ -2,7 +2,7 @@ package com.company.SafarSaathi.auth_service.service;
 
 import com.company.SafarSaathi.auth_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.auth_service.dtos.SignupRequestDto;
-import com.company.SafarSaathi.auth_service.dtos.UserDto;
+import com.company.SafarSaathi.auth_service.dtos.UserProfileCreateRequest;
 import com.company.SafarSaathi.auth_service.entities.User;
 import com.company.SafarSaathi.auth_service.enums.Role;
 import com.company.SafarSaathi.auth_service.exceptions.BadRequestException;
@@ -23,7 +23,7 @@ public class AuthService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
 
-    public UserDto signUp(SignupRequestDto signupRequestDto) {
+    public UserProfileCreateRequest signUp(SignupRequestDto signupRequestDto) {
         boolean exists = userRepository.existsByEmail(signupRequestDto.getEmail());
         if (exists) {
             throw new BadRequestException("User already exists, cannot signup again");
@@ -36,7 +36,7 @@ public class AuthService {
         user.setRole(Role.TRAVELLER);
 
         User savedUser = userRepository.save(user);
-        return modelMapper.map(savedUser, UserDto.class);
+        return modelMapper.map(savedUser, UserProfileCreateRequest.class);
     }
 
     public String login(LoginRequestDto loginRequestDto) {

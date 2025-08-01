@@ -4,7 +4,7 @@ package com.company.SafarSaathi.auth_service.controller;
 
 import com.company.SafarSaathi.auth_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.auth_service.dtos.SignupRequestDto;
-import com.company.SafarSaathi.auth_service.dtos.UserDto;
+import com.company.SafarSaathi.auth_service.dtos.UserProfileCreateRequest;
 import com.company.SafarSaathi.auth_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +19,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDto> signUp(@RequestBody SignupRequestDto signupRequestDto){
-        UserDto userDto = authService.signUp(signupRequestDto);
+    public ResponseEntity<UserProfileCreateRequest> signUp(@RequestBody SignupRequestDto signupRequestDto){
+        UserProfileCreateRequest userDto = authService.signUp(signupRequestDto);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 

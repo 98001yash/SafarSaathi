@@ -1,5 +1,5 @@
 jwt:
-  secretKey: ZXlKcGRpSTZJbXh6YzJsa0lpd2libUZ0WlNJNklqVXpNVEF3TXpNMU5USXhOaUlzSW1WNGNDSTZNVFl4TXpjeU5qWXdNRFV4TENKcGMzTWlPaUpvZEhSd2N6b3ZMM0J5YjNKMExYTnZZMnRsY3k1amIyMGlMQ0p6ZFdJaU9pSm9kSFJ3Y3pvdkwzQnliM0owTFhOdlltRjBhVzl1SWl3aWMyTnZjaUk2SW5WdFlXbHNZV2RsYm1GdFpTQjkuZVVmR2dBcUtaX2ZRVGhSeXFES3ZNdDZqM3ZHM1ZVM0JZdElFQU1NdQ==
+  secretKey: mysupersecurekeyformysafarsaathijwt1234567890abcdefABCDEF1234567890
 
 
 
@@ -26,8 +26,8 @@ spring:
               - DELETE
               - OPTIONS
       routes:
-        - id: user-service
-          uri: lb://user-service
+        - id: auth-service
+          uri: lb://auth-service
           predicates:
             - Path=/auth/**
           filters:

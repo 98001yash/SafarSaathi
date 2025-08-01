@@ -1,4 +1,4 @@
-package com.company.SafarSaathi.user_service.dtos;
+package com.company.SafarSaathi.auth_service.dtos;
 
 
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.company.SafarSaathi.user_service.utils;
+package com.company.SafarSaathi.auth_service.utils;
 
 import org.mindrot.jbcrypt.BCrypt;
 

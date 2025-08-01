@@ -1,7 +1,8 @@
-package com.company.SafarSaathi.user_service.service;
+package com.company.SafarSaathi.auth_service.service;
 
 
-import com.company.SafarSaathi.user_service.entities.User;
+
+import com.company.SafarSaathi.auth_service.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

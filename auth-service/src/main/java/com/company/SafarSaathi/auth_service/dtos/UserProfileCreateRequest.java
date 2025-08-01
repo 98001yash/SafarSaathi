@@ -1,12 +1,29 @@
 package com.company.SafarSaathi.auth_service.dtos;
 
-import com.company.SafarSaathi.auth_service.enums.Role;
+
 import lombok.Data;
 
 @Data
 public class UserProfileCreateRequest {
+
+
     private Long id;
-    private String name;
+    private String fullName;
     private String email;
-    private Role role;
+    private String phoneNumber;
+
+    private String gender;
+    private int age;
+
+    private String bio;
+    private String country;
+    private String city;
+
+    private boolean smoker;
+    private boolean drinker;
+
+    private String lifestyle;
+    private String travelStyle;
+
+    private String profileImageUrl;
 }

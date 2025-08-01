@@ -2,7 +2,7 @@ package com.company.SafarSaathi.user_service.service;
 
 import com.company.SafarSaathi.user_service.auth.UserContextHolder;
 import com.company.SafarSaathi.user_service.dtos.UpdateUserRequest;
-import com.company.SafarSaathi.user_service.dtos.UserDto;
+import com.company.SafarSaathi.user_service.dtos.UserProfileCreateRequest;
 import com.company.SafarSaathi.user_service.entities.User;
 import com.company.SafarSaathi.user_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.user_service.repository.UserRepository;
@@ -21,17 +21,17 @@ public class UserService {
     private final ModelMapper modelMapper;
 
 
-    public UserDto getUserById() {
+    public UserProfileCreateRequest getUserById() {
         Long userId = UserContextHolder.getCurrentUserId();
         log.info("Fetching user with ID: {}", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-        return modelMapper.map(user, UserDto.class);
+        return modelMapper.map(user, UserProfileCreateRequest.class);
     }
 
-    public UserDto updateUser(UpdateUserRequest request) {
+    public UserProfileCreateRequest updateUser(UpdateUserRequest request) {
         Long userId = UserContextHolder.getCurrentUserId();
         log.info("Updating user with ID: {}", userId);
 
@@ -53,15 +53,15 @@ public class UserService {
         user.setProfileImageUrl(request.getProfileImageUrl());
 
         User updatedUser = userRepository.save(user);
-        return modelMapper.map(updatedUser, UserDto.class);
+        return modelMapper.map(updatedUser, UserProfileCreateRequest.class);
     }
 
 
 
-    public UserDto createUser(UserDto userDto) {
+    public UserProfileCreateRequest createUser(UserProfileCreateRequest userDto) {
         log.info("Creating user with ID: {}", userDto.getId());
         User user = modelMapper.map(userDto, User.class);
         User saved = userRepository.save(user);
-        return modelMapper.map(saved, UserDto.class);
+        return modelMapper.map(saved, UserProfileCreateRequest.class);
     }
 }

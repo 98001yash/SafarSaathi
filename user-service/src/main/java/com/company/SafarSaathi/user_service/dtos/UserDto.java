@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserDto {
 
-   private String id;
+   private Long id;
    private String fullName;
    private String email;
    private String phoneNumber;
@@ -27,8 +27,8 @@ public class UserDto {
    private boolean smoker;
    private boolean drinker;
 
-   private String lifeStyle;
-   private String travelStyle;
+    private String lifestyle;
+    private String travelStyle;
 
    private String profileImageUrl;
 

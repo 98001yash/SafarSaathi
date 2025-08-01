@@ -25,7 +25,7 @@ public class UpdateUserRequest {
     private boolean smoker;
     private boolean drinker;
 
-    private String lifeStyle;
+    private String lifestyle;
 
     private String travelStyle;
 

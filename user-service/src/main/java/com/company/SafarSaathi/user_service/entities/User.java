@@ -18,7 +18,7 @@ public class User {
 
 
     @Id
-    private String id;
+    private Long id;
     private String fullName;
     private String email;
     private String phoneNumber;
@@ -30,8 +30,7 @@ public class User {
 
     private boolean smoker;
     private boolean drinker;
-    private String lifeStyle;   // early bird, night-owl
-    private String travelType ;  // "backpacker, luxury
-
+    private String lifestyle;
+    private String travelStyle;
     private String profileImageUrl;
 }

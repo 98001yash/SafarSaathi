@@ -59,7 +59,7 @@ public class UserService {
 
 
     public UserProfileCreateRequest createUser(UserProfileCreateRequest userDto) {
-        log.info("Creating user with ID: {}", userDto.getId());
+        log.info("Creating user with ID: {}", userDto.getUserId());
         User user = modelMapper.map(userDto, User.class);
         User saved = userRepository.save(user);
         return modelMapper.map(saved, UserProfileCreateRequest.class);

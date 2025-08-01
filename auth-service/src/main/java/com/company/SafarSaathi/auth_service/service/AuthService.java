@@ -37,21 +37,29 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // Send basic profile creation request
-        BasicProfileCreateRequest profileRequest = BasicProfileCreateRequest.builder()
+        // Send full UserProfileCreateRequest with default values
+        UserProfileCreateRequest profileRequest = UserProfileCreateRequest.builder()
                 .userId(savedUser.getId())
                 .fullName(savedUser.getFullName())
                 .email(savedUser.getEmail())
+                .phoneNumber("")      // default or blank
+                .gender("")
+                .age(0)
+                .bio("")
+                .country("")
+                .city("")
+                .smoker(false)
+                .drinker(false)
+                .lifestyle("")
+                .travelStyle("")
+                .profileImageUrl("")
                 .build();
 
-        userServiceClient.createUser(profileRequest);
+        userServiceClient.createUser(profileRequest);  // Feign call
 
-        return UserProfileCreateRequest.builder()
-                .userId(savedUser.getId())
-                .fullName(savedUser.getFullName())
-                .email(savedUser.getEmail())
-                .build(); // Return basic profile info (optional)
+        return profileRequest; // Optional response
     }
+
 
     public String login(LoginRequestDto loginRequestDto) {
         User user = userRepository.findByEmail(loginRequestDto.getEmail())

@@ -11,13 +11,11 @@ public class UserProfileCreateRequest {
     private String fullName;
     private String email;
     private String phoneNumber;
-
     private String gender;
     private int age;
     private String bio;
     private String country;
     private String city;
-
     private boolean smoker;
     private boolean drinker;
     private String lifestyle;

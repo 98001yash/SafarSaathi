@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 
-    @PostMapping
+    @PostMapping("/profile")
     public ResponseEntity<UserProfileCreateRequest> createUser(@RequestBody UserProfileCreateRequest userDto) {
         log.info("Creating user profile....");
         UserProfileCreateRequest created = userService.createUser(userDto);

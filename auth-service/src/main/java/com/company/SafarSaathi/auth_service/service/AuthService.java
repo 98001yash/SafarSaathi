@@ -1,11 +1,10 @@
 package com.company.SafarSaathi.auth_service.service;
 
-
-
-
 import com.company.SafarSaathi.auth_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.auth_service.dtos.SignupRequestDto;
+import com.company.SafarSaathi.auth_service.dtos.UserDto;
 import com.company.SafarSaathi.auth_service.entities.User;
+import com.company.SafarSaathi.auth_service.enums.Role;
 import com.company.SafarSaathi.auth_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.auth_service.exceptions.ResourceNotFoundException;
 import com.company.SafarSaathi.auth_service.repository.UserRepository;
@@ -26,12 +25,15 @@ public class AuthService {
 
     public UserDto signUp(SignupRequestDto signupRequestDto) {
         boolean exists = userRepository.existsByEmail(signupRequestDto.getEmail());
-        if(exists){
+        if (exists) {
             throw new BadRequestException("User already exists, cannot signup again");
         }
+
         User user = modelMapper.map(signupRequestDto, User.class);
         user.setPassword(PasswordUtils.hashPassword(signupRequestDto.getPassword()));
 
+        // Ensure role is explicitly set to TRAVELLER
+        user.setRole(Role.TRAVELLER);
 
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDto.class);
@@ -39,12 +41,12 @@ public class AuthService {
 
     public String login(LoginRequestDto loginRequestDto) {
         User user = userRepository.findByEmail(loginRequestDto.getEmail())
-                .orElseThrow(()->new ResourceNotFoundException("User not found with email: "+loginRequestDto.getEmail()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginRequestDto.getEmail()));
 
-        boolean isPasswordMatch = PasswordUtils.checkPassword(loginRequestDto.getPassword(),user.getPassword());
+        boolean isPasswordMatch = PasswordUtils.checkPassword(loginRequestDto.getPassword(), user.getPassword());
 
-        if(!isPasswordMatch){
-            throw new BadRequestException("incorrect password");
+        if (!isPasswordMatch) {
+            throw new BadRequestException("Incorrect password");
         }
         return jwtService.generateAccessToken(user);
     }

@@ -5,7 +5,6 @@ package com.company.SafarSaathi.auth_service.service;
 
 import com.company.SafarSaathi.auth_service.dtos.LoginRequestDto;
 import com.company.SafarSaathi.auth_service.dtos.SignupRequestDto;
-import com.company.SafarSaathi.auth_service.dtos.UserDto;
 import com.company.SafarSaathi.auth_service.entities.User;
 import com.company.SafarSaathi.auth_service.exceptions.BadRequestException;
 import com.company.SafarSaathi.auth_service.exceptions.ResourceNotFoundException;

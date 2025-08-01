@@ -18,18 +18,20 @@ public class User {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
+    private String id;
+    private String fullName;
     private String email;
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-
-    private Integer age;
+    private String phoneNumber;
     private String gender;
-    private Boolean smoker;
-    private Boolean drinker;
+    private int age;
+    private String bio;
+    private String country;
+    private String city;
+
+    private boolean smoker;
+    private boolean drinker;
+    private String lifeStyle;   // early bird, night-owl
+    private String travelType ;  // "backpacker, luxury
+
+    private String profileImageUrl;
 }

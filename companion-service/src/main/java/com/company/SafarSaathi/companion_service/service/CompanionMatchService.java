@@ -39,7 +39,7 @@ public class CompanionMatchService {
 
         // 2. Fetch UserProfile
         log.info("[MATCH] Fetching user profile for userId: {}", userId);
-        UserProfile userProfile = userClient.getUserProfile(userId);
+        UserProfileCreateRequest userProfile = userClient.getUserProfile(userId);
         log.info("[MATCH] User profile fetched: {}", userProfile);
 
         // 3. Fetch User Preference
@@ -71,7 +71,7 @@ public class CompanionMatchService {
             }
 
             log.info("[MATCH] Fetching candidate user profile for userId: {}", c.getUserId());
-            UserProfile candidateProfile = userClient.getUserProfile(c.getUserId());
+            UserProfileCreateRequest candidateProfile = userClient.getUserProfile(c.getUserId());
             log.info("[MATCH] Candidate profile fetched: {}", candidateProfile);
 
             CompanionPreferenceDto candidatePref = preferenceRepository.findByUserId(c.getUserId())

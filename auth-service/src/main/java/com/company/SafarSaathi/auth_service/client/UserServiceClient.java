@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "user-service")
 public interface UserServiceClient {
 
-    @PostMapping("/profile")
-    UserDto createUser(@RequestBody UserProfileCreateRequest request);
+    @PostMapping("/users/profile")
+    UserProfileCreateRequest createUser(@RequestBody UserProfileCreateRequest request);
 }
 

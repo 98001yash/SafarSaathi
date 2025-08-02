@@ -32,78 +32,72 @@ public class CompanionMatchService {
     private final UserClient userClient;
 
     public List<CompanionProfile> getTopMatches(Long tripId) {
-
-        // 1. Authenticate the User
         Long userId = UserContextHolder.getCurrentUserId();
-        log.info("[MATCH] Fetching top matches for userId: {}", userId);
+        log.info("[MATCH] Starting match process for userId: {}", userId);
 
-        // 2. Fetch UserProfile
-        log.info("[MATCH] Fetching user profile for userId: {}", userId);
-        UserProfileCreateRequest userProfile = userClient.getUserProfile(userId);
-        log.info("[MATCH] User profile fetched: {}", userProfile);
+        // 1. Fetch current user profile (no param)
+        UserProfileCreateRequest userProfile = userClient.getCurrentUserProfile();
+        if (userProfile == null) {
+            throw new ResourceNotFoundException("User profile not found for userId: " + userId);
+        }
 
-        // 3. Fetch User Preference
-        log.info("[MATCH] Fetching preferences for userId: {}", userId);
+        // 2. Fetch user preferences
         CompanionPreference preference = preferenceRepository.findByUserId(userId)
-                .orElseThrow(() -> {
-                    log.warn("[MATCH] No preferences found for userId: {}", userId);
-                    return new ResourceNotFoundException("Preference not found");
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Preference not found for userId: " + userId));
         CompanionPreferenceDto preferenceDto = modelMapper.map(preference, CompanionPreferenceDto.class);
-        log.info("[MATCH] User preference fetched: {}", preferenceDto);
 
-        // 4. Fetch Trip Details
-        log.info("[MATCH] Fetching trip by tripId: {}", tripId);
+        // 3. Fetch trip details
         TripDto trip = tripClient.getTripById(tripId);
-        log.info("[MATCH] Trip fetched: {}", trip);
+        if (trip == null) {
+            throw new ResourceNotFoundException("Trip not found for tripId: " + tripId);
+        }
 
-        // 5. Fetch All Open Companion Candidates
-        log.info("[MATCH] Fetching all open companions...");
+        // 4. Fetch all open companions
         List<Companion> candidates = companionRepository.findByStatus("OPEN");
-        log.info("[MATCH] Total open companions fetched: {}", candidates.size());
-
         List<CandidateProfile> candidateProfiles = new ArrayList<>();
 
         for (Companion c : candidates) {
             if (c.getUserId().equals(userId)) {
-                log.info("[MATCH] Skipping self candidate with userId: {}", c.getUserId());
+                log.debug("[MATCH] Skipping self profile: userId={}", c.getUserId());
                 continue;
             }
 
-            log.info("[MATCH] Fetching candidate user profile for userId: {}", c.getUserId());
-            UserProfileCreateRequest candidateProfile = userClient.getUserProfile(c.getUserId());
-            log.info("[MATCH] Candidate profile fetched: {}", candidateProfile);
+            // Fetch candidate user profile
+            UserProfileCreateRequest candidateUserProfile = userClient.getUserProfileByUserId(c.getUserId());
+            if (candidateUserProfile == null) {
+                log.warn("[MATCH] Candidate user profile missing for userId: {}", c.getUserId());
+                continue;
+            }
 
+            // Fetch candidate preferences
             CompanionPreferenceDto candidatePref = preferenceRepository.findByUserId(c.getUserId())
-                    .map(p -> {
-                        log.info("[MATCH] Candidate preference found for userId: {}", c.getUserId());
-                        return modelMapper.map(p, CompanionPreferenceDto.class);
-                    })
+                    .map(p -> modelMapper.map(p, CompanionPreferenceDto.class))
                     .orElse(null);
 
             if (candidatePref == null) {
-                log.warn("[MATCH] No preferences found for candidate userId: {}", c.getUserId());
+                log.warn("[MATCH] Candidate preference missing for userId: {}", c.getUserId());
             }
 
+            // Add to list
             candidateProfiles.add(CandidateProfile.builder()
                     .companion(modelMapper.map(c, CompanionDto.class))
-                    .userProfile(candidateProfile)
+                    .userProfileCreateRequest(candidateUserProfile)
                     .preference(candidatePref)
                     .build());
         }
 
-        // 6. Construct Match Request
-        MatchRequest request = MatchRequest.builder()
-                .userProfile(userProfile)
+        // 5. Build MatchRequest
+        MatchRequest matchRequest = MatchRequest.builder()
+                .userProfileCreateRequest(userProfile)
                 .userPreference(preferenceDto)
                 .trip(trip)
                 .candidates(candidateProfiles)
                 .build();
 
-        log.info("[MATCH] MatchRequest built. Sending to matching-service: {}", request);
+        log.info("[MATCH] Sending MatchRequest to matching-service with {} candidates", candidateProfiles.size());
 
-        // 7. Call Matching Service
-        List<CompanionProfile> matches = matchingClient.getTopMatches(request);
+        // 6. Call ML Matching Service
+        List<CompanionProfile> matches = matchingClient.getTopMatches(matchRequest);
         log.info("[MATCH] Received {} matches from matching-service", matches.size());
 
         return matches;

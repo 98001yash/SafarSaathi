@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MatchRequest {
-    private UserProfile userProfile;
+    private UserProfileCreateRequest userProfileCreateRequest;
     private CompanionPreferenceDto userPreference;
     private TripDto trip;
 

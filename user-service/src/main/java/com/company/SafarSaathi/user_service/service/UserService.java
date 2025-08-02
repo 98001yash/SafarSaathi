@@ -20,10 +20,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-
-    public UserProfileCreateRequest getUserById() {
+    // ✅ Get current user (from JWT/X-User-Id header)
+    public UserProfileCreateRequest getCurrentUserProfile() {
         Long userId = UserContextHolder.getCurrentUserId();
-        log.info("Fetching user with ID: {}", userId);
+        log.info("Fetching current user with ID: {}", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -31,6 +31,17 @@ public class UserService {
         return modelMapper.map(user, UserProfileCreateRequest.class);
     }
 
+    // ✅ Get any user by userId (for matching-service or others)
+    public UserProfileCreateRequest getUserById(Long userId) {
+        log.info("Fetching user by ID: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        return modelMapper.map(user, UserProfileCreateRequest.class);
+    }
+
+    // ✅ Update current user (from JWT)
     public UserProfileCreateRequest updateUser(UpdateUserRequest request) {
         Long userId = UserContextHolder.getCurrentUserId();
         log.info("Updating user with ID: {}", userId);
@@ -56,8 +67,7 @@ public class UserService {
         return modelMapper.map(updatedUser, UserProfileCreateRequest.class);
     }
 
-
-
+    // ✅ Create user profile (called from auth-service on signup)
     public UserProfileCreateRequest createUser(UserProfileCreateRequest userDto) {
         log.info("Creating user with ID: {}", userDto.getUserId());
         User user = modelMapper.map(userDto, User.class);

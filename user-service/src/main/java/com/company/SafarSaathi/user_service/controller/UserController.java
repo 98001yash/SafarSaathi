@@ -20,7 +20,7 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<UserProfileCreateRequest> getUserProfile(){
         log.info("Getting user profile...");
-        UserProfileCreateRequest userDto = userService.getUserById();
+        UserProfileCreateRequest userDto = userService.getCurrentUserProfile();
         return ResponseEntity.ok(userDto);
 
     }
@@ -37,4 +37,12 @@ public class UserController {
         UserProfileCreateRequest created = userService.createUser(userDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<UserProfileCreateRequest> getUserProfileById(@PathVariable Long userId) {
+        log.info("Getting profile for userId: {}", userId);
+        UserProfileCreateRequest userDto = userService.getUserById(userId);
+        return ResponseEntity.ok(userDto);
+    }
+
 }

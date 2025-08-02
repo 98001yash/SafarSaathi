@@ -14,6 +14,6 @@ public class CandidateProfile {
 
 
     private CompanionDto companion;
-    private UserProfile userProfile;
+    private UserProfileCreateRequest userProfileCreateRequest;
     private CompanionPreferenceDto preference;
 }

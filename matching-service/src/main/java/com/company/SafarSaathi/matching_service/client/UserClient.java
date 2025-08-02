@@ -12,5 +12,10 @@ public interface UserClient {
 
 
     @GetMapping("/users/profile")
-    UserProfileCreateRequest getUserProfile();
+    UserProfileCreateRequest getCurrentUserProfile(); // current user from X-User-Id header
+
+
+
+    @GetMapping("/users/profile/{userId}")
+    UserProfileCreateRequest getUserProfileByUserId(@PathVariable("userId") Long userId); // for candidates
 }

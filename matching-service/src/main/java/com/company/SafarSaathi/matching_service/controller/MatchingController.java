@@ -24,5 +24,4 @@ public class MatchingController {
         return matchingService.findTopMatches(request.getUserProfile(), request.getCandidates());
     }
 
-
 }

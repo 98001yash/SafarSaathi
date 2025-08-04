@@ -33,6 +33,10 @@ public class CompanionController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    /*
+    all the APIs for the companion are available here...
+     */
+
     @PutMapping("/{id}")
     public ResponseEntity<CompanionDto> updateCompanion(
             @PathVariable Long id,

@@ -117,7 +117,7 @@ public class CompanionController {
     }
 
 
-    // controller for the companion Matching
+    //  API for the companion matching service
 
     @GetMapping("/match/{tripId}")
     public ResponseEntity<List<CompanionProfile>> getTopMatches(@PathVariable Long tripId){

@@ -108,6 +108,7 @@ public class CompanionController {
         return ResponseEntity.ok(companionRequestService.getRequestsForUser());
     }
 
+    // API for the getSentRequests
     @GetMapping("/sent")
     public ResponseEntity<List<CompanionRequestResponseDto>> getSentRequests() {
         Long currentUserId = UserContextHolder.getCurrentUserId();
@@ -120,7 +121,8 @@ public class CompanionController {
     //  API for the companion matching service
 
     @GetMapping("/match/{tripId}")
-    public ResponseEntity<List<CompanionProfile>> getTopMatches(@PathVariable Long tripId){
+    public ResponseEntity
+            <List<CompanionProfile>> getTopMatches(@PathVariable Long tripId){
         return ResponseEntity.ok(companionMatchService.getTopMatches(tripId));
     }
 

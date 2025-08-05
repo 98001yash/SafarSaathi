@@ -93,6 +93,7 @@ public class CompanionController {
         return ResponseEntity.ok(companionRequestService.acceptRequest(requestId));
     }
 
+    // API Added for the reject Request
     @PostMapping("/{requestId}/reject")
     public ResponseEntity<CompanionRequestResponseDto> rejectRequest(@PathVariable Long requestId){
         Long currentUserId = UserContextHolder.getCurrentUserId();

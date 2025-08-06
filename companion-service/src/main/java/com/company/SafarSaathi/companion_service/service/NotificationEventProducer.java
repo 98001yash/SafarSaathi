@@ -18,7 +18,7 @@ public class NotificationEventProducer {
     public void sendNotification(NotificationEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("notification-events", json);
+            kafkaTemplate.send("notification-topic", json);
             log.info("✅ Sent notification to Kafka for userId: {}", event.getUserId());
         } catch (Exception e) {
             log.error("❌ Failed to send notification event", e);

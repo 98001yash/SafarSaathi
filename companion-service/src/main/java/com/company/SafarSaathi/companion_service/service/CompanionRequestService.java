@@ -47,18 +47,20 @@ public class CompanionRequestService {
         request.setTimeStamp(LocalDateTime.now());
 
         CompanionRequest saved = companionRequestRepository.save(request);
-        log.info("Companion request sent from {} to {} for trip {}", senderId, dto.getReceiverId(), dto.getTripId());
 
+        log.info("✅ Companion request sent from {} to {} for trip {}", senderId, dto.getReceiverId(), dto.getTripId());
+
+        // 📨 TEMP: Hardcoded receiver email (replace with user-service call later)
+        String receiverEmail = "harshgarg5907@gmail.com";
         // 🔔 Send Kafka Notification to receiver
-        notificationEventProducer.sendNotification(
-                new NotificationEvent(
-                        dto.getReceiverId().toString(),
-                        "REQUEST_RECEIVED",
-                        "You have a new companion request from user " + senderId + " for trip " + dto.getTripId(),
-                        null,
-                        null
-                )
-        );
+        NotificationEvent event = NotificationEvent.builder()
+                .userId(dto.getReceiverId().toString())
+                .type("REQUEST_RECEIVED")
+                .message("You have a new companion request from user " + senderId + " for trip " + dto.getTripId())
+                .email(receiverEmail)
+                .build();
+
+        notificationEventProducer.sendNotification(event);
 
         return modelMapper.map(saved, CompanionRequestResponseDto.class);
     }

@@ -26,6 +26,7 @@ public class CompanionRequestService {
     private final CompanionRequestRepository companionRequestRepository;
     private final ModelMapper modelMapper;
     private final NotificationEventProducer notificationEventProducer;
+    private final RequestGraphService requestGraphService;
 
     public CompanionRequestResponseDto sendRequest(CompanionRequestDto dto) {
         Long senderId = UserContextHolder.getCurrentUserId();
@@ -62,6 +63,8 @@ public class CompanionRequestService {
 
         notificationEventProducer.sendNotification(event);
 
+        // Neo4j graph Db Integration for the proper visualization
+        requestGraphService.saveRequestToGraph(senderId, dto.getReceiverId(), dto.getTripId(), "PENDING");
         return modelMapper.map(saved, CompanionRequestResponseDto.class);
     }
 

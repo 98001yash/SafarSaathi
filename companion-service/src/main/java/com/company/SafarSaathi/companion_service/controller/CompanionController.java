@@ -4,7 +4,6 @@ package com.company.SafarSaathi.companion_service.controller;
 import com.company.SafarSaathi.companion_service.auth.UserContextHolder;
 import com.company.SafarSaathi.companion_service.dtos.*;
 import com.company.SafarSaathi.companion_service.entity.CompanionPreference;
-import com.company.SafarSaathi.companion_service.service.CompanionMatchService;
 import com.company.SafarSaathi.companion_service.service.CompanionPreferenceService;
 import com.company.SafarSaathi.companion_service.service.CompanionRequestService;
 import com.company.SafarSaathi.companion_service.service.CompanionService;
@@ -25,17 +24,12 @@ public class CompanionController {
     private final CompanionService companionService;
     private final CompanionPreferenceService preferenceService;
     private final CompanionRequestService companionRequestService;
-    private final CompanionMatchService companionMatchService;
 
     @PostMapping("/create")
     public ResponseEntity<CompanionDto> createCompanion(@RequestBody CreateCompanionRequest requestDto) {
         CompanionDto created = companionService.createCompanion(requestDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
-
-    /*
-    all the APIs for the companion are available here...
-     */
 
     @PutMapping("/{id}")
     public ResponseEntity<CompanionDto> updateCompanion(
@@ -116,15 +110,6 @@ public class CompanionController {
         log.info("Fetching sent companion requests by user {}", currentUserId);
 
         return ResponseEntity.ok(companionRequestService.getSentRequests());
-    }
-
-
-    //  API for the companion matching service
-
-    @GetMapping("/match/{tripId}")
-    public ResponseEntity
-            <List<CompanionProfile>> getTopMatches(@PathVariable Long tripId){
-        return ResponseEntity.ok(companionMatchService.getTopMatches(tripId));
     }
 
 }

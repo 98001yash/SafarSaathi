@@ -1,6 +1,7 @@
 package com.company.SafarSaathi.chat_service.entity;
 
 
+import com.company.SafarSaathi.chat_service.enums.MessageStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +24,8 @@ public class ChatMessage {
 
     private String content;
     private LocalDateTime timestamp;
-    private boolean seen;
+
+
+    @Enumerated(EnumType.STRING)
+    private MessageStatus status;
 }

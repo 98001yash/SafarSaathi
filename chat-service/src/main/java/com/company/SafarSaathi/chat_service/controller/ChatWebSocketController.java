@@ -2,6 +2,7 @@ package com.company.SafarSaathi.chat_service.controller;
 
 import com.company.SafarSaathi.chat_service.dto.ChatMessageDto;
 import com.company.SafarSaathi.chat_service.entity.ChatMessage;
+import com.company.SafarSaathi.chat_service.enums.MessageStatus;
 import com.company.SafarSaathi.chat_service.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,7 +26,7 @@ public class ChatWebSocketController {
                 .receiverId(chatMessageDto.getReceiverId())
                 .content(chatMessageDto.getContent())
                 .timestamp(LocalDateTime.now())
-                .seen(false)
+                .status(MessageStatus.SENT)
                 .build();
 
         chatMessageRepository.save(message);

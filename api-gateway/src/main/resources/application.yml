@@ -50,14 +50,6 @@ spring:
             - name: AuthenticationFilter
 
 
-        - id: matching-service
-          uri: lb://matching-service
-          predicates:
-            - Path=/api/v3/matching/**
-          filters:
-            - StripPrefix=2
-            - name: AuthenticationFilter
-
 
         - id: Bot-service
           uri: lb://Bot-service
@@ -72,6 +64,15 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/api/v4/users/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
+
+
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/v4/chat/**
           filters:
             - StripPrefix=2
             - name: AuthenticationFilter

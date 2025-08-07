@@ -124,6 +124,7 @@ public class CompanionRequestService {
         log.info("User {} rejected companion request ID {} from sender {}",
                 currentUserId, requestId, request.getSenderId());
 
+
         // 🔔 Send Kafka Notification to sender
         notificationEventProducer.sendNotification(
                 new NotificationEvent(

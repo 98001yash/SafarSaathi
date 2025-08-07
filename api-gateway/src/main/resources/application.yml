@@ -69,14 +69,6 @@ spring:
             - name: AuthenticationFilter
 
 
-        - id: chat-service
-          uri: lb://chat-service
-          predicates:
-            - Path=/api/v4/chat/**
-          filters:
-            - StripPrefix=2
-            - name: AuthenticationFilter
-
 
 
 eureka:

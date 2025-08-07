@@ -19,7 +19,7 @@
         <module name="api-gateway" />
         <module name="user-service" />
       </profile>
-      <profile name="Annotation profile for companion-service" enabled="true">
+      <profile name="Annotation profile for chat-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -27,6 +27,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="companion-service" />
+        <module name="chat-service" />
         <module name="trip-service" />
         <module name="auth-service" />
         <module name="notification-service" />
@@ -42,6 +43,7 @@
       <module name="Bot-service" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
       <module name="auth-service" options="-parameters" />
+      <module name="chat-service" options="-parameters" />
       <module name="companion-service" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
       <module name="matching-service" options="-parameters" />

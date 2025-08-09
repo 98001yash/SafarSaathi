@@ -76,11 +76,6 @@ cd bot-service && mvn spring-boot:run
 
 *📜 License
 This project is licensed under the MIT License — feel free to use and adapt it.
-
-yaml
-Copy
-Edit
-
 ---
 
 If you want, I can also make this **README** with:

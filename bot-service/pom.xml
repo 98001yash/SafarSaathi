@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.company.SafarSaathi</groupId>
-	<artifactId>Bot-service</artifactId>
+	<artifactId>bot-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Bot-service</name>
 	<description>Bot service in the SafarSaathi application</description>
